@@ -6,7 +6,7 @@
 - Dev server: http://localhost:3000
 - Current branch: `hritik`
 - GitHub: https://github.com/HritikGupta22/AI_MarketPlace
-- Build: ✅ Passing (npm run build — 0 errors)
+- Build: ✅ Passing (19 routes — 0 errors)
 
 ---
 
@@ -24,8 +24,8 @@
 | Implement NextAuth (Credentials + Google OAuth) | ✅ Done |
 | Google OAuth — allowDangerousEmailAccountLinking enabled | ✅ Done |
 | Register API route (`/api/auth/register`) | ✅ Done |
-| Login page (`/auth/login`) with reset success + OAuth error messages | ✅ Done |
-| Register page (`/auth/register`) with Buyer/Seller role | ✅ Done |
+| Login page with reset success + OAuth error messages | ✅ Done |
+| Register page with Buyer/Seller role | ✅ Done |
 | Forgot Password page + API (Resend email) | ✅ Done |
 | Reset Password page + API (token validation) | ✅ Done |
 | PasswordResetToken model + migration | ✅ Done |
@@ -33,53 +33,56 @@
 | Navbar component (auth-aware) | ✅ Done |
 | Footer component | ✅ Done |
 | SessionProvider in layout | ✅ Done |
-| NextAuth TypeScript types (`session.user.id`, `session.user.role`) | ✅ Done |
+| NextAuth TypeScript types | ✅ Done |
 | Fixed turbopack root (stray package-lock.json removed) | ✅ Done |
 
 ---
 
-## 📁 Key Files — Phase 1
+## ✅ Phase 2 — COMPLETED (Week 3-4)
+
+| Task | Status |
+|------|--------|
+| Cloudinary setup (image upload) | ✅ Done |
+| Seed 10 default categories into Supabase | ✅ Done |
+| Categories API (`/api/categories`) | ✅ Done |
+| Product CRUD API (`/api/products`, `/api/products/[id]`) | ✅ Done |
+| Seller products API (`/api/seller/products`) | ✅ Done |
+| Seller dashboard (`/seller/dashboard`) | ✅ Done |
+| Add product page (`/seller/products/new`) | ✅ Done |
+| Edit product page (`/seller/products/[id]/edit`) | ✅ Done |
+| Shared ProductForm component with Cloudinary upload | ✅ Done |
+| Product listing page (`/products`) with search + filter + pagination | ✅ Done |
+| Product detail page (`/products/[id]`) with reviews + seller info | ✅ Done |
+
+---
+
+## 📁 Key Files — Phase 2
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx                          ← Navbar + Footer + Providers
-│   ├── page.tsx                            ← Home page
-│   ├── auth/
-│   │   ├── login/page.tsx                  ← Login (reset success + OAuth error messages)
-│   │   ├── register/page.tsx               ← Register (Buyer/Seller role)
-│   │   ├── forgot-password/page.tsx        ← Forgot password
-│   │   └── reset-password/page.tsx         ← Reset password (token from URL)
+│   ├── products/
+│   │   ├── page.tsx                        ← Browse all products (search, filter, pagination)
+│   │   └── [id]/page.tsx                   ← Product detail (images, reviews, seller)
+│   ├── seller/
+│   │   ├── dashboard/page.tsx              ← Seller dashboard (stats, product list)
+│   │   └── products/
+│   │       ├── new/page.tsx                ← Add new product
+│   │       └── [id]/edit/page.tsx          ← Edit product
 │   └── api/
-│       └── auth/
-│           ├── [...nextauth]/route.ts      ← NextAuth handler
-│           ├── register/route.ts           ← Register API
-│           ├── forgot-password/route.ts    ← Send reset email via Resend
-│           └── reset-password/route.ts     ← Validate token + update password
-├── components/
-│   ├── layout/
-│   │   ├── Navbar.tsx                      ← Auth-aware, signOut → /auth/login
-│   │   ├── Footer.tsx
-│   │   └── Providers.tsx                   ← SessionProvider wrapper
-│   └── ui/
-│       ├── button.tsx
-│       ├── card.tsx
-│       └── input.tsx
-├── lib/
-│   ├── prisma.ts                           ← PrismaClient singleton (PrismaPg adapter)
-│   └── auth/
-│       └── options.ts                      ← NextAuth config (Credentials + Google)
-└── types/
-    └── next-auth.d.ts                      ← session.user.id + session.user.role types
+│       ├── categories/route.ts             ← GET all categories
+│       ├── products/
+│       │   ├── route.ts                    ← GET (public) + POST (seller)
+│       │   └── [id]/route.ts               ← GET + PATCH + DELETE
+│       └── seller/
+│           └── products/route.ts           ← GET seller's own products
+└── components/
+    └── products/
+        └── ProductForm.tsx                 ← Shared form (create + edit) with Cloudinary
 
 prisma/
-├── schema.prisma                           ← Full DB schema
-└── migrations/
-    ├── 20260314121733_init/                ← Initial migration
-    └── 20260314124258_add_password_reset_token/
-
-prisma.config.ts                            ← Prisma v7 config
-.env                                        ← All credentials
+└── seeds/
+    └── categories.ts                       ← Seed script (10 categories)
 ```
 
 ---
@@ -95,6 +98,10 @@ prisma.config.ts                            ← Prisma v7 config
 **To make yourself Admin:**
 1. Go to supabase.com → Table Editor → `User` table
 2. Find your user → change `role` to `ADMIN`
+
+**To approve a product (for now):**
+1. Go to supabase.com → Table Editor → `Product` table
+2. Find the product → set `approved` to `true`
 
 ---
 
@@ -115,15 +122,16 @@ prisma.config.ts                            ← Prisma v7 config
 
 ---
 
-## 📋 Next Steps — Phase 2 (Product Management)
+## 📋 Next Steps — Phase 3 (Cart & Checkout)
 
-1. [ ] Cloudinary setup for image uploads
-2. [ ] Seed default categories into DB
-3. [ ] Product CRUD API routes (create, read, update, delete)
-4. [ ] Seller dashboard — add/manage products (`/seller/dashboard`)
-5. [ ] Product listing page (`/products`) with search + filters
-6. [ ] Product detail page (`/products/[id]`)
-7. [ ] Admin product approval (manually via Supabase for now, UI in Phase 9)
+1. [ ] Cart context (Zustand store)
+2. [ ] Add to cart button on product detail
+3. [ ] Cart page (`/cart`) — view, update qty, remove
+4. [ ] Checkout page (`/checkout`)
+5. [ ] UPI payment link integration
+6. [ ] Order creation API
+7. [ ] Order confirmation page
+8. [ ] Email confirmation via Resend
 
 ---
 
@@ -132,8 +140,8 @@ prisma.config.ts                            ← Prisma v7 config
 | Phase | Feature | Status |
 |-------|---------|--------|
 | Phase 1 | Foundation + Auth | ✅ Complete |
-| Phase 2 | Product Management | 🔜 Next |
-| Phase 3 | Cart & Checkout | ⏳ Pending |
+| Phase 2 | Product Management | ✅ Complete |
+| Phase 3 | Cart & Checkout | 🔜 Next |
 | Phase 4 | Go Chat System | ⏳ Pending |
 | Phase 5 | AI Chatbot (Groq) | ⏳ Pending |
 | Phase 6 | Bargaining System | ⏳ Pending |
@@ -147,8 +155,9 @@ prisma.config.ts                            ← Prisma v7 config
 - Session 1: ~45 min — Project setup, Next.js init
 - Session 2: ~2 hrs — Prisma, Auth, Navbar, Footer, Migration, Build fixes
 - Session 3: ~1 hr — Forgot/Reset password, Google OAuth fixes, Sign out fix
+- Session 4: ~2 hrs — Phase 2: Cloudinary, Categories seed, Product CRUD, Seller dashboard, Product pages
 
 ---
 
-**Last Updated**: Phase 1 Complete — All auth flows working ✅
-**Next Goal**: Phase 2 — Product Management
+**Last Updated**: Phase 2 Complete — Build passing ✅ (19 routes)
+**Next Goal**: Phase 3 — Cart & Checkout
