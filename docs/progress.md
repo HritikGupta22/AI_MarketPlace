@@ -6,7 +6,7 @@
 - Dev server: http://localhost:3000
 - Current branch: `hritik`
 - GitHub: https://github.com/HritikGupta22/AI_MarketPlace
-- Build: ✅ Passing (19 routes — 0 errors)
+- Build: ✅ Passing (24 routes — 0 errors)
 
 ---
 
@@ -56,34 +56,53 @@
 
 ---
 
-## 📁 Key Files — Phase 2
+## ✅ Phase 3 — COMPLETED (Week 5-6)
+
+| Task | Status |
+|------|--------|
+| Zustand cart store (persisted to localStorage) | ✅ Done |
+| React Hook Form + Zod validation | ✅ Done |
+| AddToCartButton component (with added feedback) | ✅ Done |
+| Navbar cart count badge | ✅ Done |
+| Cart page (`/cart`) — view, qty update, remove, clear | ✅ Done |
+| Checkout page (`/checkout`) — delivery form + UPI payment | ✅ Done |
+| UPI payment — individual app buttons (GPay, PhonePe, Paytm, BHIM) | ✅ Done |
+| Copy UPI ID fallback for manual payment | ✅ Done |
+| Orders API (`/api/orders`) — create + list | ✅ Done |
+| Order confirmation email via Resend | ✅ Done |
+| Orders list page (`/orders`) | ✅ Done |
+| Order detail page (`/orders/[id]`) with success banner | ✅ Done |
+| Orders link in Navbar | ✅ Done |
+
+---
+
+## 📁 Key Files — Phase 3
 
 ```
 src/
+├── store/
+│   └── cartStore.ts                        ← Zustand cart (persist to localStorage)
 ├── app/
-│   ├── products/
-│   │   ├── page.tsx                        ← Browse all products (search, filter, pagination)
-│   │   └── [id]/page.tsx                   ← Product detail (images, reviews, seller)
-│   ├── seller/
-│   │   ├── dashboard/page.tsx              ← Seller dashboard (stats, product list)
-│   │   └── products/
-│   │       ├── new/page.tsx                ← Add new product
-│   │       └── [id]/edit/page.tsx          ← Edit product
+│   ├── cart/page.tsx                       ← Cart page (qty, remove, clear, summary)
+│   ├── checkout/page.tsx                   ← Checkout (Zod form + UPI payment)
+│   ├── orders/
+│   │   ├── page.tsx                        ← All orders list
+│   │   └── [id]/page.tsx                   ← Order detail + success banner
 │   └── api/
-│       ├── categories/route.ts             ← GET all categories
-│       ├── products/
-│       │   ├── route.ts                    ← GET (public) + POST (seller)
-│       │   └── [id]/route.ts               ← GET + PATCH + DELETE
-│       └── seller/
-│           └── products/route.ts           ← GET seller's own products
+│       └── orders/route.ts                 ← POST create order + GET list + email
 └── components/
     └── products/
-        └── ProductForm.tsx                 ← Shared form (create + edit) with Cloudinary
-
-prisma/
-└── seeds/
-    └── categories.ts                       ← Seed script (10 categories)
+        └── AddToCartButton.tsx             ← Client button with added feedback
 ```
+
+---
+
+## 💳 UPI Payment Notes
+
+- Uses individual app deep links: GPay (`tez://`), PhonePe (`phonepe://`), Paytm (`paytmmp://`), BHIM (`upi://`)
+- Works on both Android and iOS
+- **UPI risk warning** is normal for personal UPI IDs — user taps "Proceed anyway"
+- For production → integrate **Razorpay** (2% per txn, no risk warnings, supports cards + UPI + NetBanking)
 
 ---
 
@@ -119,19 +138,24 @@ prisma/
 | Sign out stayed on same page | Changed `callbackUrl` to `/auth/login` ✅ |
 | Google OAuth `OAuthAccountNotLinked` error | Added `allowDangerousEmailAccountLinking: true` ✅ |
 | "Forgot password?" link not visible | Changed to primary color with proper styling ✅ |
+| Cloudinary upload preset not found | Added `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` to `.env` ✅ |
+| UPI `upi://` opens only WhatsApp on iPhone | Switched to individual app deep links per platform ✅ |
+| UPI risk policy warning | Normal for personal UPI IDs — user taps "Proceed anyway" ✅ |
 
 ---
 
-## 📋 Next Steps — Phase 3 (Cart & Checkout)
+## 📋 Next Steps — Phase 4 (Go Chat System)
 
-1. [ ] Cart context (Zustand store)
-2. [ ] Add to cart button on product detail
-3. [ ] Cart page (`/cart`) — view, update qty, remove
-4. [ ] Checkout page (`/checkout`)
-5. [ ] UPI payment link integration
-6. [ ] Order creation API
-7. [ ] Order confirmation page
-8. [ ] Email confirmation via Resend
+1. [ ] Initialize Go module in `services/chat-service/`
+2. [ ] WebSocket server with Gorilla WebSocket
+3. [ ] Chat rooms (buyer ↔ seller per product)
+4. [ ] Broadcast messages to room
+5. [ ] Store messages in Supabase
+6. [ ] Frontend chat UI
+7. [ ] WebSocket connection from Next.js
+8. [ ] Typing indicators
+9. [ ] Chat history loading
+10. [ ] Deploy Go server to Render/Fly.io
 
 ---
 
@@ -141,8 +165,8 @@ prisma/
 |-------|---------|--------|
 | Phase 1 | Foundation + Auth | ✅ Complete |
 | Phase 2 | Product Management | ✅ Complete |
-| Phase 3 | Cart & Checkout | 🔜 Next |
-| Phase 4 | Go Chat System | ⏳ Pending |
+| Phase 3 | Cart & Checkout | ✅ Complete |
+| Phase 4 | Go Chat System | 🔜 Next |
 | Phase 5 | AI Chatbot (Groq) | ⏳ Pending |
 | Phase 6 | Bargaining System | ⏳ Pending |
 | Phase 7 | AI Features (CLIP) | ⏳ Pending |
@@ -156,8 +180,9 @@ prisma/
 - Session 2: ~2 hrs — Prisma, Auth, Navbar, Footer, Migration, Build fixes
 - Session 3: ~1 hr — Forgot/Reset password, Google OAuth fixes, Sign out fix
 - Session 4: ~2 hrs — Phase 2: Cloudinary, Categories seed, Product CRUD, Seller dashboard, Product pages
+- Session 5: ~2 hrs — Phase 3: Zustand cart, Checkout, UPI payment, Orders, Email confirmation
 
 ---
 
-**Last Updated**: Phase 2 Complete — Build passing ✅ (19 routes)
-**Next Goal**: Phase 3 — Cart & Checkout
+**Last Updated**: Phase 3 Complete — Build passing ✅ (24 routes)
+**Next Goal**: Phase 4 — Go Chat System

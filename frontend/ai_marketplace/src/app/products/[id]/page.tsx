@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Store } from "lucide-react";
+import { Store } from "lucide-react";
+import AddToCartButton from "@/components/products/AddToCartButton";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -68,11 +68,17 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
           <p className="text-sm leading-relaxed">{product.description}</p>
 
-          <div className="flex gap-2">
-            <Button className="flex-1" disabled={product.stock === 0}>
-              <ShoppingCart className="size-4 mr-1" /> Add to Cart
-            </Button>
-          </div>
+          <AddToCartButton
+            product={{
+              id: product.id,
+              title: product.title,
+              price: product.price,
+              image: product.images[0] ?? "",
+              sellerId: product.sellerId,
+              sellerName: product.seller.name ?? "",
+              stock: product.stock,
+            }}
+          />
 
           <Card>
             <CardContent className="p-3 flex items-center gap-3">
