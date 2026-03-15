@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Store } from "lucide-react";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import ChatButton from "@/components/products/ChatButton";
 import MakeOfferButton from "@/components/products/MakeOfferButton";
+import ReviewSection from "@/components/products/ReviewSection";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,6 +28,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const avgRating = product.reviews.length
     ? (product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length).toFixed(1)
     : null;
+
+  const similarRes = await fetch(`${process.env.NEXTAUTH_URL}/api/products/${id}/similar`, { cache: "no-store" }).catch(() => null);
+  const similar: { id: string; title: string; price: number; images: string[] }[] = similarRes?.ok ? await similarRes.json() : [];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -111,25 +116,33 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      {/* Reviews */}
-      {product.reviews.length > 0 && (
+      {/* Similar Products */}
+      {similar.length > 0 && (
         <div className="mt-10 space-y-4">
-          <h2 className="text-lg font-bold">Reviews ({product.reviews.length})</h2>
-          <div className="space-y-3">
-            {product.reviews.map((review) => (
-              <Card key={review.id}>
-                <CardContent className="p-4 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">{review.user.name}</p>
-                    <p className="text-sm">{"⭐".repeat(review.rating)}</p>
-                  </div>
-                  {review.comment && <p className="text-sm text-muted-foreground">{review.comment}</p>}
-                </CardContent>
-              </Card>
+          <h2 className="text-lg font-bold">You may also like</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {similar.map((p) => (
+              <Link key={p.id} href={`/products/${p.id}`}>
+                <Card className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-3 space-y-2">
+                    <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+                      {p.images[0] ? (
+                        <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">No image</div>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium line-clamp-2">{p.title}</p>
+                    <p className="text-sm font-bold">₹{p.price.toLocaleString()}</p>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>
       )}
+
+      <ReviewSection productId={id} initialReviews={product.reviews.map((r) => ({ ...r, sentiment: r.sentiment ?? "", createdAt: r.createdAt.toISOString() }))} />
     </div>
   );
 }

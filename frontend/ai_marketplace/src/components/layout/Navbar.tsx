@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Store } from "lucide-react";
+import { ShoppingCart, Store, ScanSearch } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState, useCallback } from "react";
 
@@ -51,6 +51,11 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link href="/products">
             <Button variant="ghost" size="sm">Browse</Button>
+          </Link>
+          <Link href="/search">
+            <Button variant="ghost" size="sm" className="gap-1.5">
+              <ScanSearch className="size-4" />Visual Search
+            </Button>
           </Link>
 
           {session ? (

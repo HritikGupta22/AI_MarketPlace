@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CldUploadWidget } from "next-cloudinary";
-import { X, ImagePlus } from "lucide-react";
+import { X, ImagePlus, Sparkles } from "lucide-react";
 
 type Category = { id: string; name: string };
 
@@ -37,6 +37,21 @@ export default function ProductForm({ initialData }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [generatingDesc, setGeneratingDesc] = useState(false);
+
+  async function generateDescription() {
+    if (!form.title) return;
+    setGeneratingDesc(true);
+    const category = categories.find((c) => c.id === form.categoryId)?.name;
+    const res = await fetch("/api/ai/description", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: form.title, category }),
+    });
+    const data = await res.json();
+    if (data.description) setForm((f) => ({ ...f, description: data.description }));
+    setGeneratingDesc(false);
+  }
 
   useEffect(() => {
     fetch("/api/categories").then((r) => r.json()).then(setCategories);
@@ -81,13 +96,26 @@ export default function ProductForm({ initialData }: Props) {
               onChange={(e) => setForm({ ...form, title: e.target.value })}
               required
             />
-            <textarea
-              placeholder="Product Description"
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full min-h-24 rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm resize-none outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              required
-            />
+            <div className="space-y-1">
+              <textarea
+                placeholder="Product Description"
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                className="w-full min-h-24 rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm resize-none outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                required
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!form.title || generatingDesc}
+                onClick={generateDescription}
+                className="gap-1.5 text-xs"
+              >
+                <Sparkles className="size-3" />
+                {generatingDesc ? "Generating..." : "Generate with AI"}
+              </Button>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <Input
                 type="number"
