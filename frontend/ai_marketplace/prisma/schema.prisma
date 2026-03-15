@@ -119,12 +119,15 @@ model OrderItem {
 model Message {
   id        String   @id @default(cuid())
   content   String
+  roomId    String
   createdAt DateTime @default(now())
 
   senderId   String
   sender     User   @relation("SentMessages", fields: [senderId], references: [id])
   receiverId String
   receiver   User   @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  @@index([roomId])
 }
 
 model PasswordResetToken {

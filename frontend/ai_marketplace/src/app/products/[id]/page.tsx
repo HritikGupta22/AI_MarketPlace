@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Store } from "lucide-react";
 import AddToCartButton from "@/components/products/AddToCartButton";
+import ChatButton from "@/components/products/ChatButton";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -78,6 +79,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               sellerName: product.seller.name ?? "",
               stock: product.stock,
             }}
+          />
+
+          <ChatButton
+            productId={product.id}
+            sellerId={product.sellerId}
+            sellerName={product.seller.name ?? "Seller"}
           />
 
           <Card>

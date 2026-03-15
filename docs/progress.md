@@ -144,18 +144,72 @@ src/
 
 ---
 
-## 📋 Next Steps — Phase 4 (Go Chat System)
+## ✅ Phase 4 — COMPLETED (Week 7-8)
 
-1. [ ] Initialize Go module in `services/chat-service/`
-2. [ ] WebSocket server with Gorilla WebSocket
-3. [ ] Chat rooms (buyer ↔ seller per product)
-4. [ ] Broadcast messages to room
-5. [ ] Store messages in Supabase
-6. [ ] Frontend chat UI
-7. [ ] WebSocket connection from Next.js
-8. [ ] Typing indicators
-9. [ ] Chat history loading
-10. [ ] Deploy Go server to Render/Fly.io
+| Task | Status |
+|------|--------|
+| Initialize Go module in `services/chat-service/` | ✅ Done |
+| WebSocket server with Gorilla WebSocket | ✅ Done |
+| Hub/Client pattern with room management | ✅ Done |
+| Chat rooms (buyer ↔ seller per product) | ✅ Done |
+| Broadcast messages to room | ✅ Done |
+| Store messages in Supabase (`roomId` column added) | ✅ Done |
+| Fixed `saveMessage` — correct `roomId` + `receiverId` parsing | ✅ Done |
+| Fixed `GetHistory` — query by `roomId` instead of senderId | ✅ Done |
+| Frontend `useChat` hook (WebSocket connection) | ✅ Done |
+| Chat room UI (`/chat/[roomId]`) | ✅ Done |
+| Typing indicators with 2s debounce | ✅ Done |
+| Chat history loading on connect | ✅ Done |
+| `ChatButton` on product detail page | ✅ Done |
+| roomId format: `buyerId_sellerId_productId` | ✅ Done |
+| CORS middleware on Go server | ✅ Done |
+| Ping/Pong keepalive (54s ticker) | ✅ Done |
+
+---
+
+## 📁 Key Files — Phase 4
+
+```
+services/chat-service/
+├── main.go                          ← Go HTTP server (port 8080), CORS, routes
+├── handlers/
+│   ├── websocket.go                 ← Hub, Client, ReadPump, WritePump, saveMessage, GetHistory
+│   └── message.go                  ← ServeWS — upgrades connection, sends history
+├── models/
+│   └── chat.go                     ← Message + WSMessage structs
+└── database/
+    └── postgres.go                 ← Supabase connection via DIRECT_URL
+
+frontend/ai_marketplace/src/
+├── hooks/
+│   └── useChat.ts                  ← WebSocket hook (connect, send, receive, typing)
+├── app/
+│   └── chat/[roomId]/page.tsx      ← Chat room UI
+└── components/products/
+    └── ChatButton.tsx              ← Builds roomId, navigates to chat
+```
+
+---
+
+## 🐛 Phase 4 Issues Fixed
+
+| Issue | Fix |
+|-------|-----|
+| `GetHistory` queried `senderId = roomID` | Fixed to `WHERE roomId = $1` ✅ |
+| `saveMessage` passed roomId as receiverId | Fixed — parses `buyerId_sellerId_productId`, derives correct receiverId ✅ |
+| `Message` table missing `roomId` column | Added `roomId String` + `@@index([roomId])` to Prisma schema + migrated ✅ |
+| Hydration mismatch on Navbar cart badge | Fixed with `mounted` state — badge only renders after client mount ✅ |
+
+---
+
+## 📋 Next Steps — Phase 5 (AI Chatbot)
+
+1. [ ] Seller chat inbox (`/seller/chats`) — list all buyer conversations (prerequisite for AI takeover)
+2. [ ] Integrate Groq API (LLaMA model)
+3. [ ] AI bot auto-responds to buyer messages when seller is offline
+4. [ ] Product context passed to AI (title, price, description)
+5. [ ] Seller takeover — seller can jump in and disable AI for that room
+6. [ ] AI suggested replies for seller
 
 ---
 
@@ -166,8 +220,8 @@ src/
 | Phase 1 | Foundation + Auth | ✅ Complete |
 | Phase 2 | Product Management | ✅ Complete |
 | Phase 3 | Cart & Checkout | ✅ Complete |
-| Phase 4 | Go Chat System | 🔜 Next |
-| Phase 5 | AI Chatbot (Groq) | ⏳ Pending |
+| Phase 4 | Go Chat System | ✅ Complete |
+| Phase 5 | AI Chatbot (Groq) + Seller Inbox | 🔜 Next |
 | Phase 6 | Bargaining System | ⏳ Pending |
 | Phase 7 | AI Features (CLIP) | ⏳ Pending |
 | Phase 8 | Reviews System | ⏳ Pending |
@@ -181,8 +235,9 @@ src/
 - Session 3: ~1 hr — Forgot/Reset password, Google OAuth fixes, Sign out fix
 - Session 4: ~2 hrs — Phase 2: Cloudinary, Categories seed, Product CRUD, Seller dashboard, Product pages
 - Session 5: ~2 hrs — Phase 3: Zustand cart, Checkout, UPI payment, Orders, Email confirmation
+- Session 6: ~2 hrs — Phase 4: Go WebSocket server, chat rooms, frontend hook, chat UI, bug fixes
 
 ---
 
-**Last Updated**: Phase 3 Complete — Build passing ✅ (24 routes)
-**Next Goal**: Phase 4 — Go Chat System
+**Last Updated**: Phase 4 Complete — Build passing ✅ (25 routes)
+**Next Goal**: Phase 5 — AI Chatbot (Groq) + Seller Chat Inbox

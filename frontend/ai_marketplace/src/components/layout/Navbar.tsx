@@ -5,10 +5,14 @@ import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Store } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
+import { useEffect, useState } from "react";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const count = useCartStore((s) => s.count());
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
@@ -36,7 +40,7 @@ export default function Navbar() {
               <Link href="/cart">
                 <Button variant="ghost" size="icon" className="relative">
                   <ShoppingCart className="size-4" />
-                  {count > 0 && (
+                  {count > 0 && mounted && (
                     <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
                       {count > 9 ? "9+" : count}
                     </span>
@@ -52,7 +56,7 @@ export default function Navbar() {
               <Link href="/cart">
                 <Button variant="ghost" size="icon" className="relative">
                   <ShoppingCart className="size-4" />
-                  {count > 0 && (
+                  {count > 0 && mounted && (
                     <span className="absolute -top-1 -right-1 size-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
                       {count > 9 ? "9+" : count}
                     </span>
