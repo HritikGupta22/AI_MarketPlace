@@ -82,10 +82,16 @@ export default function Navbar() {
                       )}
                     </Button>
                   </Link>
+                  <Link href="/seller/offers">
+                    <Button variant="ghost" size="sm">Offers</Button>
+                  </Link>
                 </>
               )}
               <Link href="/orders">
                 <Button variant="ghost" size="sm">Orders</Button>
+              </Link>
+              <Link href="/buyer/offers">
+                <Button variant="ghost" size="sm">My Offers</Button>
               </Link>
               <Link href="/cart">
                 <Button variant="ghost" size="icon" className="relative">

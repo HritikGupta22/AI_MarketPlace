@@ -258,16 +258,53 @@ frontend/ai_marketplace/src/
 
 ---
 
-## 📋 Next Steps — Phase 6 (Bargaining System)
+## ✅ Phase 6 — COMPLETED (Week 10)
 
-1. [ ] Offer model in Prisma schema (buyerId, sellerId, productId, amount, status, expiresAt)
-2. [ ] Create offer API (`/api/offers`)
-3. [ ] Accept/reject offer API
-4. [ ] Counter offer support
-5. [ ] Offer expiration (24h)
-6. [ ] Buyer offer UI on product page
-7. [ ] Seller offer management UI
-8. [ ] Deal conversion to order on acceptance
+| Task | Status |
+|------|--------|
+| `Offer` model in Prisma schema (amount, quantity, status, counterAmount, expiresAt) | ✅ Done |
+| `OfferStatus` enum (PENDING/ACCEPTED/REJECTED/COUNTERED/EXPIRED) | ✅ Done |
+| Create offer API (`POST /api/offers`) | ✅ Done |
+| List offers API (`GET /api/offers`) — buyer sees own, seller sees received | ✅ Done |
+| Accept/Reject/Counter offer API (`PATCH /api/offers/[id]`) | ✅ Done |
+| Auto-expire API (`POST /api/offers/expire`) — called on page load | ✅ Done |
+| `MakeOfferButton` on product page — price per item + quantity fields | ✅ Done |
+| Negative/zero price + qty blocked on input | ✅ Done |
+| Live summary: your total / listed total / you save ₹X | ✅ Done |
+| Qty capped at stock, price must be < listed price | ✅ Done |
+| `/seller/offers` — pending offers with Accept/Reject/Counter | ✅ Done |
+| `/buyer/offers` — track offers, see counters, Buy Now on accepted | ✅ Done |
+| Deal conversion — accepted offer links to checkout with negotiated price + qty | ✅ Done |
+| Checkout supports offer-based flow with 🎉 negotiated price banner | ✅ Done |
+| Navbar — "Offers" for sellers, "My Offers" for buyers | ✅ Done |
+| Seller dashboard — Offers button added | ✅ Done |
+
+---
+
+## 📁 Key Files — Phase 6
+
+```
+frontend/ai_marketplace/src/
+├── app/
+│   ├── api/offers/
+│   │   ├── route.ts              ← POST create + GET list
+│   │   ├── [id]/route.ts         ← PATCH accept/reject/counter
+│   │   └── expire/route.ts       ← POST auto-expire stale offers
+│   ├── seller/offers/page.tsx    ← Seller offer management
+│   ├── buyer/offers/page.tsx     ← Buyer offer tracking
+│   └── checkout/page.tsx         ← Updated: offer-based checkout
+└── components/products/
+    └── MakeOfferButton.tsx       ← Price + qty fields, live summary
+```
+
+---
+
+## 📋 Next Steps — Phase 7 (AI Features)
+
+1. [ ] AI product descriptions (Groq — auto-generate from title + category)
+2. [ ] Product embeddings + recommendation engine
+3. [ ] Visual search using CLIP (HuggingFace)
+4. [ ] Review sentiment analysis
 
 ---
 
@@ -280,8 +317,8 @@ frontend/ai_marketplace/src/
 | Phase 3 | Cart & Checkout | ✅ Complete |
 | Phase 4 | Go Chat System | ✅ Complete |
 | Phase 5 | AI Chatbot + Seller Inbox | ✅ Complete |
-| Phase 6 | Bargaining System | 🔜 Next |
-| Phase 7 | AI Features (CLIP) | ⏳ Pending |
+| Phase 6 | Bargaining System | ✅ Complete |
+| Phase 7 | AI Features (CLIP) | 🔜 Next |
 | Phase 8 | Reviews System | ⏳ Pending |
 | Phase 9 | Admin Dashboard | ⏳ Pending |
 
@@ -295,8 +332,9 @@ frontend/ai_marketplace/src/
 - Session 5: ~2 hrs — Phase 3: Zustand cart, Checkout, UPI payment, Orders, Email confirmation
 - Session 6: ~2 hrs — Phase 4: Go WebSocket server, chat rooms, frontend hook, chat UI, bug fixes
 - Session 7: ~2 hrs — Phase 5: Groq AI, seller inbox, unread badge, bot message persistence
+- Session 8: ~2 hrs — Phase 6: Offer model, APIs, MakeOfferButton, seller/buyer offer pages, deal conversion
 
 ---
 
-**Last Updated**: Phase 5 Complete — Build passing ✅ (27 routes)
-**Next Goal**: Phase 6 — Bargaining System
+**Last Updated**: Phase 6 Complete — Build passing ✅ (32 routes)
+**Next Goal**: Phase 7 — AI Features

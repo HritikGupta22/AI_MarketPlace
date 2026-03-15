@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Store } from "lucide-react";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import ChatButton from "@/components/products/ChatButton";
+import MakeOfferButton from "@/components/products/MakeOfferButton";
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -88,6 +89,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             productTitle={product.title}
             productPrice={product.price}
             productDescription={product.description}
+          />
+
+          <MakeOfferButton
+            productId={product.id}
+            productPrice={product.price}
+            productStock={product.stock}
           />
 
           <Card>

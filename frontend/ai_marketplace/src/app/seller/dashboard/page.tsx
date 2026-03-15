@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Pencil, Trash2, Clock, CheckCircle, MessageCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Clock, CheckCircle, MessageCircle, HandCoins } from "lucide-react";
 
 type Product = {
   id: string;
@@ -56,6 +56,9 @@ export default function SellerDashboard() {
         <div className="flex items-center gap-2">
           <Link href="/seller/chats">
             <Button variant="outline"><MessageCircle className="size-4 mr-1" /> Messages</Button>
+          </Link>
+          <Link href="/seller/offers">
+            <Button variant="outline"><HandCoins className="size-4 mr-1" /> Offers</Button>
           </Link>
           <Link href="/seller/products/new">
             <Button><Plus className="size-4 mr-1" /> Add Product</Button>
