@@ -85,6 +85,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             productId={product.id}
             sellerId={product.sellerId}
             sellerName={product.seller.name ?? "Seller"}
+            productTitle={product.title}
+            productPrice={product.price}
+            productDescription={product.description}
           />
 
           <Card>

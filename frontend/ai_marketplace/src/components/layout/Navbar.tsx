@@ -5,14 +5,40 @@ import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Store } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+
+const STORAGE_KEY = "seller_chats_last_seen";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const count = useCartStore((s) => s.count());
   const [mounted, setMounted] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => setMounted(true), []);
+
+  const fetchUnread = useCallback(async () => {
+    if (!session || session.user.role !== "SELLER") return;
+    try {
+      const res = await fetch("/api/seller/chats/unread");
+      const data = await res.json();
+      const lastSeen: Record<string, string> = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+      let unread = 0;
+      for (const room of data.rooms ?? []) {
+        const seenAt = lastSeen[room.roomId];
+        if (!seenAt || new Date(room.lastMessageAt) > new Date(seenAt)) unread++;
+      }
+      setUnreadCount(unread);
+    } catch {}
+  }, [session]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    fetchUnread();
+    // Poll every 30 seconds
+    const interval = setInterval(fetchUnread, 30000);
+    return () => clearInterval(interval);
+  }, [mounted, fetchUnread]);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
@@ -30,9 +56,33 @@ export default function Navbar() {
           {session ? (
             <>
               {session.user.role === "SELLER" && (
-                <Link href="/seller/dashboard">
-                  <Button variant="ghost" size="sm">Dashboard</Button>
-                </Link>
+                <>
+                  <Link href="/seller/dashboard">
+                    <Button variant="ghost" size="sm">Dashboard</Button>
+                  </Link>
+                  <Link href="/seller/chats" onClick={() => {
+                    // Mark all rooms as seen on click
+                    fetch("/api/seller/chats/unread")
+                      .then(r => r.json())
+                      .then(data => {
+                        const lastSeen: Record<string, string> = {};
+                        for (const room of data.rooms ?? []) {
+                          lastSeen[room.roomId] = room.lastMessageAt;
+                        }
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(lastSeen));
+                        setUnreadCount(0);
+                      });
+                  }}>
+                    <Button variant="ghost" size="sm" className="relative">
+                      Messages
+                      {unreadCount > 0 && mounted && (
+                        <span className="absolute -top-1 -right-1 size-4 rounded-full bg-destructive text-destructive-foreground text-[10px] flex items-center justify-center font-bold">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
+                    </Button>
+                  </Link>
+                </>
               )}
               <Link href="/orders">
                 <Button variant="ghost" size="sm">Orders</Button>

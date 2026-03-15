@@ -202,14 +202,72 @@ frontend/ai_marketplace/src/
 
 ---
 
-## 📋 Next Steps — Phase 5 (AI Chatbot)
+## ✅ Phase 5 — COMPLETED (Week 9)
 
-1. [ ] Seller chat inbox (`/seller/chats`) — list all buyer conversations (prerequisite for AI takeover)
-2. [ ] Integrate Groq API (LLaMA model)
-3. [ ] AI bot auto-responds to buyer messages when seller is offline
-4. [ ] Product context passed to AI (title, price, description)
-5. [ ] Seller takeover — seller can jump in and disable AI for that room
-6. [ ] AI suggested replies for seller
+| Task | Status |
+|------|--------|
+| Seller chat inbox (`/seller/chats`) | ✅ Done |
+| Seller chats API (`/api/seller/chats`) | ✅ Done |
+| Unread message badge on Navbar for sellers | ✅ Done |
+| Unread count API (`/api/seller/chats/unread`) | ✅ Done |
+| Polls every 30s, clears on inbox visit | ✅ Done |
+| Integrate Groq API (`llama-3.3-70b-versatile`) | ✅ Done |
+| AI auto-replies with product context (title, price, description) | ✅ Done |
+| AI reply broadcast via WebSocket to all room clients | ✅ Done |
+| AI messages saved to DB with sellerId + senderName = "AI Assistant" | ✅ Done |
+| `senderName` column added to Message table + migrated | ✅ Done |
+| `GetHistory` returns senderName, restores ai-bot senderId | ✅ Done |
+| AI messages show on right side for seller with 🤖 tag | ✅ Done |
+| AI messages show on left side for buyer with 🤖 tag | ✅ Done |
+| AI typing indicator (blue animated dots) | ✅ Done |
+| AI only triggers for buyers, not sellers | ✅ Done |
+| Seller takeover from AI (disable bot per room) | ✅ Done |
+| Hand back to AI (re-enable bot per room) | ✅ Done |
+| Toggle button left of input — 🤖 blue = AI active, ✓ green = seller in control | ✅ Done |
+
+---
+
+## 📁 Key Files — Phase 5
+
+```
+frontend/ai_marketplace/src/
+├── app/
+│   ├── api/
+│   │   ├── chat/ai/route.ts              ← Groq API route (product context + LLaMA)
+│   │   └── seller/
+│   │       ├── chats/route.ts            ← Seller inbox API
+│   │       └── chats/unread/route.ts     ← Unread count API
+│   └── seller/chats/page.tsx            ← Seller chat inbox UI
+├── hooks/useChat.ts                      ← Updated: AI trigger + bot WS send
+├── components/
+│   ├── layout/Navbar.tsx                 ← Unread badge for sellers
+│   └── products/ChatButton.tsx          ← Passes product context via URL params
+```
+
+---
+
+## 🐛 Phase 5 Issues Fixed
+
+| Issue | Fix |
+|-------|-----|
+| `llama3-8b-8192` decommissioned | Switched to `llama-3.3-70b-versatile` ✅ |
+| AI reply not visible to seller | Sent via WebSocket instead of local state injection ✅ |
+| Bot FK constraint on DB insert | Save bot messages with sellerId as senderId ✅ |
+| AI messages not persisting in history | Added `senderName` column, restored `ai-bot` id in GetHistory ✅ |
+| AI message showing on wrong side for seller | `isMe = isSeller && isBot` logic fix ✅ |
+
+---
+
+## 📋 Next Steps — Phase 6 (Bargaining System)
+
+1. [ ] Offer model in Prisma schema (buyerId, sellerId, productId, amount, status, expiresAt)
+2. [ ] Create offer API (`/api/offers`)
+3. [ ] Accept/reject offer API
+4. [ ] Counter offer support
+5. [ ] Offer expiration (24h)
+6. [ ] Buyer offer UI on product page
+7. [ ] Seller offer management UI
+8. [ ] Deal conversion to order on acceptance
 
 ---
 
@@ -221,8 +279,8 @@ frontend/ai_marketplace/src/
 | Phase 2 | Product Management | ✅ Complete |
 | Phase 3 | Cart & Checkout | ✅ Complete |
 | Phase 4 | Go Chat System | ✅ Complete |
-| Phase 5 | AI Chatbot (Groq) + Seller Inbox | 🔜 Next |
-| Phase 6 | Bargaining System | ⏳ Pending |
+| Phase 5 | AI Chatbot + Seller Inbox | ✅ Complete |
+| Phase 6 | Bargaining System | 🔜 Next |
 | Phase 7 | AI Features (CLIP) | ⏳ Pending |
 | Phase 8 | Reviews System | ⏳ Pending |
 | Phase 9 | Admin Dashboard | ⏳ Pending |
@@ -236,8 +294,9 @@ frontend/ai_marketplace/src/
 - Session 4: ~2 hrs — Phase 2: Cloudinary, Categories seed, Product CRUD, Seller dashboard, Product pages
 - Session 5: ~2 hrs — Phase 3: Zustand cart, Checkout, UPI payment, Orders, Email confirmation
 - Session 6: ~2 hrs — Phase 4: Go WebSocket server, chat rooms, frontend hook, chat UI, bug fixes
+- Session 7: ~2 hrs — Phase 5: Groq AI, seller inbox, unread badge, bot message persistence
 
 ---
 
-**Last Updated**: Phase 4 Complete — Build passing ✅ (25 routes)
-**Next Goal**: Phase 5 — AI Chatbot (Groq) + Seller Chat Inbox
+**Last Updated**: Phase 5 Complete — Build passing ✅ (27 routes)
+**Next Goal**: Phase 6 — Bargaining System

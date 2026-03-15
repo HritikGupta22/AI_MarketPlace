@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Pencil, Trash2, Clock, CheckCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Clock, CheckCircle, MessageCircle } from "lucide-react";
 
 type Product = {
   id: string;
@@ -53,9 +53,14 @@ export default function SellerDashboard() {
           <h1 className="text-2xl font-bold">Seller Dashboard</h1>
           <p className="text-muted-foreground text-sm">Manage your products</p>
         </div>
-        <Link href="/seller/products/new">
-          <Button><Plus className="size-4 mr-1" /> Add Product</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/seller/chats">
+            <Button variant="outline"><MessageCircle className="size-4 mr-1" /> Messages</Button>
+          </Link>
+          <Link href="/seller/products/new">
+            <Button><Plus className="size-4 mr-1" /> Add Product</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

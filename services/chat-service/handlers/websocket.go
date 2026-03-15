@@ -22,6 +22,7 @@ type Client struct {
 
 type Hub struct {
 	rooms      map[string]map[*Client]bool
+	aiDisabled map[string]bool
 	broadcast  chan *RoomMessage
 	register   chan *Client
 	unregister chan *Client
@@ -38,6 +39,7 @@ var GlobalHub = NewHub()
 func NewHub() *Hub {
 	return &Hub{
 		rooms:      make(map[string]map[*Client]bool),
+		aiDisabled: make(map[string]bool),
 		broadcast:  make(chan *RoomMessage, 256),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
@@ -114,16 +116,44 @@ func (c *Client) ReadPump(h *Hub) {
 
 		switch wsMsg.Type {
 		case "message":
-			// Save to DB
-			savedMsg := saveMessage(wsMsg.RoomID, c.ID, c.Name, wsMsg.Content)
-			response, _ := json.Marshal(models.WSMessage{
-				Type:       "message",
-				RoomID:     wsMsg.RoomID,
-				SenderID:   c.ID,
-				SenderName: c.Name,
-				Content:    wsMsg.Content,
-				Messages:   []models.Message{savedMsg},
-			})
+			var response []byte
+			if wsMsg.SenderID == "ai-bot" {
+				// Check if seller has taken over
+				h.mu.RLock()
+				disabled := h.aiDisabled[c.RoomID]
+				h.mu.RUnlock()
+				if disabled {
+					break // drop bot message silently
+				}
+				// Bot message — save with sellerId as sender (parsed from roomId)
+				parts := strings.Split(c.RoomID, "_") // buyerId_sellerId_productId
+				sellerID := ""
+				if len(parts) >= 2 {
+					sellerID = parts[1]
+				}
+				savedMsg := saveMessage(wsMsg.RoomID, sellerID, "AI Assistant", wsMsg.Content)
+				savedMsg.SenderID = "ai-bot" // keep ai-bot id for frontend rendering
+				savedMsg.SenderName = "AI Assistant"
+				response, _ = json.Marshal(models.WSMessage{
+					Type:       "message",
+					RoomID:     wsMsg.RoomID,
+					SenderID:   "ai-bot",
+					SenderName: "AI Assistant",
+					Content:    wsMsg.Content,
+					Messages:   []models.Message{savedMsg},
+				})
+			} else {
+				// Regular message — save to DB
+				savedMsg := saveMessage(wsMsg.RoomID, c.ID, c.Name, wsMsg.Content)
+				response, _ = json.Marshal(models.WSMessage{
+					Type:       "message",
+					RoomID:     wsMsg.RoomID,
+					SenderID:   c.ID,
+					SenderName: c.Name,
+					Content:    wsMsg.Content,
+					Messages:   []models.Message{savedMsg},
+				})
+			}
 			h.broadcast <- &RoomMessage{RoomID: c.RoomID, Message: response}
 
 		case "typing", "stop_typing":
@@ -134,6 +164,28 @@ func (c *Client) ReadPump(h *Hub) {
 				SenderName: c.Name,
 			})
 			h.broadcast <- &RoomMessage{RoomID: c.RoomID, Message: response}
+
+		case "takeover":
+			h.mu.Lock()
+			h.aiDisabled[c.RoomID] = true
+			h.mu.Unlock()
+			response, _ := json.Marshal(models.WSMessage{
+				Type:   "ai_disabled",
+				RoomID: c.RoomID,
+			})
+			h.broadcast <- &RoomMessage{RoomID: c.RoomID, Message: response}
+			log.Printf("Seller took over room %s — AI disabled", c.RoomID)
+
+		case "handback":
+			h.mu.Lock()
+			h.aiDisabled[c.RoomID] = false
+			h.mu.Unlock()
+			response, _ := json.Marshal(models.WSMessage{
+				Type:   "ai_enabled",
+				RoomID: c.RoomID,
+			})
+			h.broadcast <- &RoomMessage{RoomID: c.RoomID, Message: response}
+			log.Printf("Seller handed back room %s — AI enabled", c.RoomID)
 		}
 	}
 }
@@ -180,10 +232,10 @@ func saveMessage(roomID, senderID, senderName, content string) models.Message {
 	}
 
 	row := database.DB.QueryRow(
-		`INSERT INTO "Message" (id, content, "roomId", "senderId", "receiverId", "createdAt")
-		 VALUES (gen_random_uuid()::text, $1, $2, $3, $4, NOW())
+		`INSERT INTO "Message" (id, content, "roomId", "senderId", "senderName", "receiverId", "createdAt")
+		 VALUES (gen_random_uuid()::text, $1, $2, $3, $4, $5, NOW())
 		 RETURNING id`,
-		content, roomID, senderID, receiverID,
+		content, roomID, senderID, senderName, receiverID,
 	)
 	row.Scan(&msg.ID)
 	return msg
@@ -191,7 +243,7 @@ func saveMessage(roomID, senderID, senderName, content string) models.Message {
 
 func GetHistory(roomID string) []models.Message {
 	rows, err := database.DB.Query(
-		`SELECT id, content, "senderId", "createdAt" FROM "Message"
+		`SELECT id, content, "senderId", "senderName", "createdAt" FROM "Message"
 		 WHERE "roomId" = $1
 		 ORDER BY "createdAt" ASC LIMIT 50`,
 		roomID,
@@ -204,7 +256,11 @@ func GetHistory(roomID string) []models.Message {
 	var messages []models.Message
 	for rows.Next() {
 		var m models.Message
-		rows.Scan(&m.ID, &m.Content, &m.SenderID, &m.CreatedAt)
+		rows.Scan(&m.ID, &m.Content, &m.SenderID, &m.SenderName, &m.CreatedAt)
+		// Restore ai-bot senderId for messages saved as AI Assistant
+		if m.SenderName == "AI Assistant" {
+			m.SenderID = "ai-bot"
+		}
 		messages = append(messages, m)
 	}
 	return messages

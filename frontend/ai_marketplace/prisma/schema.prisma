@@ -117,10 +117,11 @@ model OrderItem {
 }
 
 model Message {
-  id        String   @id @default(cuid())
-  content   String
-  roomId    String
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  content    String
+  roomId     String
+  senderName String   @default("")
+  createdAt  DateTime @default(now())
 
   senderId   String
   sender     User   @relation("SentMessages", fields: [senderId], references: [id])

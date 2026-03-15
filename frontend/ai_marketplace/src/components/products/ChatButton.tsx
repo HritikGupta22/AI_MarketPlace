@@ -9,9 +9,12 @@ type Props = {
   productId: string;
   sellerId: string;
   sellerName: string;
+  productTitle: string;
+  productPrice: number;
+  productDescription: string;
 };
 
-export default function ChatButton({ productId, sellerId, sellerName }: Props) {
+export default function ChatButton({ productId, sellerId, sellerName, productTitle, productPrice, productDescription }: Props) {
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -20,9 +23,14 @@ export default function ChatButton({ productId, sellerId, sellerName }: Props) {
       router.push("/auth/login");
       return;
     }
-    // roomId = buyerId_sellerId_productId
     const roomId = `${session.user.id}_${sellerId}_${productId}`;
-    router.push(`/chat/${roomId}?sellerName=${encodeURIComponent(sellerName)}`);
+    const params = new URLSearchParams({
+      sellerName,
+      productTitle,
+      productPrice: String(productPrice),
+      productDescription,
+    });
+    router.push(`/chat/${roomId}?${params.toString()}`);
   }
 
   return (

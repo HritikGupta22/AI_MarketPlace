@@ -12,7 +12,7 @@ export type ChatMessage = {
 };
 
 type WSMessage = {
-  type: "message" | "typing" | "stop_typing" | "history";
+  type: "message" | "typing" | "stop_typing" | "history" | "ai_disabled" | "ai_enabled";
   roomId: string;
   senderId: string;
   senderName: string;
@@ -20,13 +20,28 @@ type WSMessage = {
   messages?: ChatMessage[];
 };
 
-const CHAT_SERVER = process.env.NEXT_PUBLIC_CHAT_SERVER_URL ?? "ws://localhost:8080";
+type ProductContext = {
+  productTitle: string;
+  productPrice: string;
+  productDescription: string;
+};
 
-export function useChat(roomId: string, userId: string, userName: string) {
+const CHAT_SERVER = process.env.NEXT_PUBLIC_CHAT_SERVER_URL ?? "ws://localhost:8080";
+const BOT_ID = "ai-bot";
+const BOT_NAME = "AI Assistant";
+
+export function useChat(
+  roomId: string,
+  userId: string,
+  userName: string,
+  productContext?: ProductContext
+) {
   const ws = useRef<WebSocket | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [connected, setConnected] = useState(false);
   const [typingUser, setTypingUser] = useState<string | null>(null);
+  const [aiTyping, setAiTyping] = useState(false);
+  const [aiDisabled, setAiDisabled] = useState(false);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
@@ -56,11 +71,58 @@ export function useChat(roomId: string, userId: string, userName: string) {
         case "stop_typing":
           if (data.senderId !== userId) setTypingUser(null);
           break;
+        case "ai_disabled":
+          setAiDisabled(true);
+          break;
+        case "ai_enabled":
+          setAiDisabled(false);
+          break;
       }
     };
 
     return () => ws.current?.close();
   }, [roomId, userId, userName]);
+
+  const sendBotMessage = useCallback((content: string) => {
+    // Send AI reply through WebSocket so seller sees it too
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      ws.current.send(JSON.stringify({
+        type: "message",
+        roomId,
+        senderId: BOT_ID,
+        senderName: BOT_NAME,
+        content,
+      }));
+    }
+  }, [roomId]);
+
+  const triggerAIReply = useCallback(async (userMessage: string) => {
+    if (!productContext || aiDisabled) return;
+    setAiTyping(true);
+    try {
+      const res = await fetch("/api/chat/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: userMessage,
+          productTitle: productContext.productTitle,
+          productPrice: productContext.productPrice,
+          productDescription: productContext.productDescription,
+        }),
+      });
+      const data = await res.json();
+      if (data.reply) sendBotMessage(data.reply);
+      else {
+        console.error("[AI Reply Error]", data.error);
+        sendBotMessage("I'll get back to you shortly!");
+      }
+    } catch (err) {
+      console.error("[AI Fetch Error]", err);
+      sendBotMessage("Sorry, I'm having trouble responding right now.");
+    } finally {
+      setAiTyping(false);
+    }
+  }, [productContext, sendBotMessage]);
 
   const sendMessage = useCallback((content: string) => {
     if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return;
@@ -71,7 +133,9 @@ export function useChat(roomId: string, userId: string, userName: string) {
       senderName: userName,
       content,
     }));
-  }, [roomId, userId, userName]);
+    // Trigger AI reply only for buyers (not the seller/bot)
+    triggerAIReply(content);
+  }, [roomId, userId, userName, triggerAIReply]);
 
   const sendTyping = useCallback(() => {
     if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return;
@@ -82,5 +146,17 @@ export function useChat(roomId: string, userId: string, userName: string) {
     }, 2000);
   }, [roomId, userId, userName]);
 
-  return { messages, connected, typingUser, sendMessage, sendTyping };
+  const sendTakeover = useCallback(() => {
+    if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return;
+    ws.current.send(JSON.stringify({ type: "takeover", roomId, senderId: userId, senderName: userName }));
+    setAiDisabled(true);
+  }, [roomId, userId, userName]);
+
+  const sendHandback = useCallback(() => {
+    if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return;
+    ws.current.send(JSON.stringify({ type: "handback", roomId, senderId: userId, senderName: userName }));
+    setAiDisabled(false);
+  }, [roomId, userId, userName]);
+
+  return { messages, connected, typingUser, aiTyping, aiDisabled, sendMessage, sendTyping, sendTakeover, sendHandback };
 }

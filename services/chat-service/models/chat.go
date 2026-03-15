@@ -12,10 +12,10 @@ type Message struct {
 }
 
 type WSMessage struct {
-	Type       string  `json:"type"` // "message" | "typing" | "stop_typing" | "history"
-	RoomID     string  `json:"roomId"`
-	SenderID   string  `json:"senderId"`
-	SenderName string  `json:"senderName"`
-	Content    string  `json:"content"`
+	Type       string    `json:"type"` // "message" | "typing" | "stop_typing" | "history" | "takeover" | "ai_disabled"
+	RoomID     string    `json:"roomId"`
+	SenderID   string    `json:"senderId"`
+	SenderName string    `json:"senderName"`
+	Content    string    `json:"content"`
 	Messages   []Message `json:"messages,omitempty"`
 }
