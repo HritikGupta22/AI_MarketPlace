@@ -34,6 +34,7 @@ model User {
   reviewReplies ReviewReply[]
   buyerOffers  Offer[] @relation("BuyerOffers")
   sellerOffers Offer[] @relation("SellerOffers")
+  platformFees PlatformFee[]
 }
 
 model Account {
@@ -172,6 +173,32 @@ model Offer {
   product   Product @relation(fields: [productId], references: [id])
 }
 
+model PlatformFee {
+  id        String   @id @default(cuid())
+  month     Int      // 1-12
+  year      Int
+  earnings  Float    // total seller earnings that month
+  feeAmount Float    // 2% of earnings
+  status    FeeStatus @default(PENDING)
+  utr       String?  // payment reference number submitted by seller
+  paidAt    DateTime?
+  dueDate   DateTime // 5th of next month
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sellerId  String
+  seller    User   @relation(fields: [sellerId], references: [id])
+
+  @@unique([sellerId, month, year])
+}
+
+enum FeeStatus {
+  PENDING
+  SUBMITTED
+  CONFIRMED
+  OVERDUE
+  WAIVED
+}
 model Review {
   id         String   @id @default(cuid())
   rating     Int

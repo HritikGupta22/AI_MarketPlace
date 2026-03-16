@@ -6,7 +6,7 @@
 - Dev server: http://localhost:3000
 - Current branch: `hritik`
 - GitHub: https://github.com/HritikGupta22/AI_MarketPlace
-- Build: ✅ Passing (50 routes — 0 errors)
+- Build: ✅ Passing (56 routes — 0 errors)
 
 ---
 
@@ -76,74 +76,6 @@
 
 ---
 
-## 📁 Key Files — Phase 3
-
-```
-src/
-├── store/
-│   └── cartStore.ts                        ← Zustand cart (persist to localStorage)
-├── app/
-│   ├── cart/page.tsx                       ← Cart page (qty, remove, clear, summary)
-│   ├── checkout/page.tsx                   ← Checkout (Zod form + UPI payment)
-│   ├── orders/
-│   │   ├── page.tsx                        ← All orders list
-│   │   └── [id]/page.tsx                   ← Order detail + success banner
-│   └── api/
-│       └── orders/route.ts                 ← POST create order + GET list + email
-└── components/
-    └── products/
-        └── AddToCartButton.tsx             ← Client button with added feedback
-```
-
----
-
-## 💳 UPI Payment Notes
-
-- Uses individual app deep links: GPay (`tez://`), PhonePe (`phonepe://`), Paytm (`paytmmp://`), BHIM (`upi://`)
-- Works on both Android and iOS
-- **UPI risk warning** is normal for personal UPI IDs — user taps "Proceed anyway"
-- For production → integrate **Razorpay** (2% per txn, no risk warnings, supports cards + UPI + NetBanking)
-
----
-
-## 👤 Roles Explained
-
-| Role | How to get it | Access |
-|------|--------------|--------|
-| `BUYER` | Default on register | Browse + buy products |
-| `SELLER` | Select on register | List + manage own products |
-| `ADMIN` | Manually set in Supabase DB | Full platform control (Phase 9) |
-
-**To make yourself Admin:**
-1. Go to supabase.com → Table Editor → `User` table
-2. Find your user → change `role` to `ADMIN`
-
-**To approve a product (for now):**
-1. Go to supabase.com → Table Editor → `Product` table
-2. Find the product → set `approved` to `true`
-
----
-
-## 🐛 Issues Fixed
-
-| Issue | Fix |
-|-------|-----|
-| GitHub auth failed | Fixed with Personal Access Token ✅ |
-| Prisma v7 — `url` not allowed in schema.prisma | Moved to `prisma.config.ts` ✅ |
-| Migration failed on pgBouncer port 6543 | Used `DIRECT_URL` (port 5432) for migrations ✅ |
-| `directUrl` not valid in Prisma v7 config | Removed, only `url` supported ✅ |
-| `datasourceUrl` not valid in PrismaClient constructor | Removed, Prisma v7 reads from config ✅ |
-| `PrismaClientConstructorValidationError` | Added `@prisma/adapter-pg` with `PrismaPg` ✅ |
-| tailwindcss not resolving (wrong workspace root) | Deleted stray `frontend/package-lock.json` + set `turbopack.root` ✅ |
-| Sign out stayed on same page | Changed `callbackUrl` to `/auth/login` ✅ |
-| Google OAuth `OAuthAccountNotLinked` error | Added `allowDangerousEmailAccountLinking: true` ✅ |
-| "Forgot password?" link not visible | Changed to primary color with proper styling ✅ |
-| Cloudinary upload preset not found | Added `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` to `.env` ✅ |
-| UPI `upi://` opens only WhatsApp on iPhone | Switched to individual app deep links per platform ✅ |
-| UPI risk policy warning | Normal for personal UPI IDs — user taps "Proceed anyway" ✅ |
-
----
-
 ## ✅ Phase 4 — COMPLETED (Week 7-8)
 
 | Task | Status |
@@ -164,41 +96,6 @@ src/
 | roomId format: `buyerId_sellerId_productId` | ✅ Done |
 | CORS middleware on Go server | ✅ Done |
 | Ping/Pong keepalive (54s ticker) | ✅ Done |
-
----
-
-## 📁 Key Files — Phase 4
-
-```
-services/chat-service/
-├── main.go                          ← Go HTTP server (port 8080), CORS, routes
-├── handlers/
-│   ├── websocket.go                 ← Hub, Client, ReadPump, WritePump, saveMessage, GetHistory
-│   └── message.go                  ← ServeWS — upgrades connection, sends history
-├── models/
-│   └── chat.go                     ← Message + WSMessage structs
-└── database/
-    └── postgres.go                 ← Supabase connection via DIRECT_URL
-
-frontend/ai_marketplace/src/
-├── hooks/
-│   └── useChat.ts                  ← WebSocket hook (connect, send, receive, typing)
-├── app/
-│   └── chat/[roomId]/page.tsx      ← Chat room UI
-└── components/products/
-    └── ChatButton.tsx              ← Builds roomId, navigates to chat
-```
-
----
-
-## 🐛 Phase 4 Issues Fixed
-
-| Issue | Fix |
-|-------|-----|
-| `GetHistory` queried `senderId = roomID` | Fixed to `WHERE roomId = $1` ✅ |
-| `saveMessage` passed roomId as receiverId | Fixed — parses `buyerId_sellerId_productId`, derives correct receiverId ✅ |
-| `Message` table missing `roomId` column | Added `roomId String` + `@@index([roomId])` to Prisma schema + migrated ✅ |
-| Hydration mismatch on Navbar cart badge | Fixed with `mounted` state — badge only renders after client mount ✅ |
 
 ---
 
@@ -227,37 +124,6 @@ frontend/ai_marketplace/src/
 
 ---
 
-## 📁 Key Files — Phase 5
-
-```
-frontend/ai_marketplace/src/
-├── app/
-│   ├── api/
-│   │   ├── chat/ai/route.ts              ← Groq API route (product context + LLaMA)
-│   │   └── seller/
-│   │       ├── chats/route.ts            ← Seller inbox API
-│   │       └── chats/unread/route.ts     ← Unread count API
-│   └── seller/chats/page.tsx            ← Seller chat inbox UI
-├── hooks/useChat.ts                      ← Updated: AI trigger + bot WS send
-├── components/
-│   ├── layout/Navbar.tsx                 ← Unread badge for sellers
-│   └── products/ChatButton.tsx          ← Passes product context via URL params
-```
-
----
-
-## 🐛 Phase 5 Issues Fixed
-
-| Issue | Fix |
-|-------|-----|
-| `llama3-8b-8192` decommissioned | Switched to `llama-3.3-70b-versatile` ✅ |
-| AI reply not visible to seller | Sent via WebSocket instead of local state injection ✅ |
-| Bot FK constraint on DB insert | Save bot messages with sellerId as senderId ✅ |
-| AI messages not persisting in history | Added `senderName` column, restored `ai-bot` id in GetHistory ✅ |
-| AI message showing on wrong side for seller | `isMe = isSeller && isBot` logic fix ✅ |
-
----
-
 ## ✅ Phase 6 — COMPLETED (Week 10)
 
 | Task | Status |
@@ -267,6 +133,7 @@ frontend/ai_marketplace/src/
 | Create offer API (`POST /api/offers`) | ✅ Done |
 | List offers API (`GET /api/offers`) — buyer sees own, seller sees received | ✅ Done |
 | Accept/Reject/Counter offer API (`PATCH /api/offers/[id]`) | ✅ Done |
+| Buyer accept/reject counter offer (`buyer_accept` / `buyer_reject` actions) | ✅ Done |
 | Auto-expire API (`POST /api/offers/expire`) — called on page load | ✅ Done |
 | `MakeOfferButton` on product page — price per item + quantity fields | ✅ Done |
 | Negative/zero price + qty blocked on input | ✅ Done |
@@ -278,24 +145,6 @@ frontend/ai_marketplace/src/
 | Checkout supports offer-based flow with 🎉 negotiated price banner | ✅ Done |
 | Navbar — "Offers" for sellers, "My Offers" for buyers | ✅ Done |
 | Seller dashboard — Offers button added | ✅ Done |
-
----
-
-## 📁 Key Files — Phase 6
-
-```
-frontend/ai_marketplace/src/
-├── app/
-│   ├── api/offers/
-│   │   ├── route.ts              ← POST create + GET list
-│   │   ├── [id]/route.ts         ← PATCH accept/reject/counter
-│   │   └── expire/route.ts       ← POST auto-expire stale offers
-│   ├── seller/offers/page.tsx    ← Seller offer management
-│   ├── buyer/offers/page.tsx     ← Buyer offer tracking
-│   └── checkout/page.tsx         ← Updated: offer-based checkout
-└── components/products/
-    └── MakeOfferButton.tsx       ← Price + qty fields, live summary
-```
 
 ---
 
@@ -311,28 +160,9 @@ frontend/ai_marketplace/src/
 | Reviews API (`/api/reviews`) — POST creates review + Groq sentiment classification | ✅ Done |
 | Review form on product detail page (star rating + comment) | ✅ Done |
 | Sentiment badge on each review (POSITIVE/NEUTRAL/NEGATIVE) | ✅ Done |
-| Visual search API (`/api/search/visual`) — HuggingFace CLIP zero-shot | ✅ Done |
-| Visual search page (`/search`) — image upload + results grid | ✅ Done |
+| Visual search API (`/api/search/visual`) — Groq vision + cosine similarity | ✅ Done |
+| Visual search page (`/search`) — image upload + AI caption + results grid | ✅ Done |
 | Visual Search link in Navbar | ✅ Done |
-
----
-
-## 📁 Key Files — Phase 7
-
-```
-frontend/ai_marketplace/src/
-├── app/
-│   ├── api/
-│   │   ├── ai/description/route.ts          ← Groq description generator
-│   │   ├── reviews/route.ts                 ← POST create review + GET list (with sentiment)
-│   │   ├── products/[id]/similar/route.ts   ← TF-IDF cosine similarity
-│   │   └── search/visual/route.ts           ← HuggingFace CLIP visual search
-│   ├── search/page.tsx                      ← Visual search UI
-│   └── products/[id]/page.tsx               ← Updated: similar products + ReviewSection
-└── components/products/
-    ├── ProductForm.tsx                      ← Updated: "Generate with AI" button
-    └── ReviewSection.tsx                   ← Review form + sentiment badges
-```
 
 ---
 
@@ -346,29 +176,12 @@ frontend/ai_marketplace/src/
 | Helpfulness voting API (`POST /api/reviews/[id]/vote`) | ✅ Done |
 | Admin hide/unhide API (`PATCH /api/reviews/[id]/hide`) | ✅ Done |
 | AI review summary API (`GET /api/reviews/summary`) via Groq | ✅ Done |
-| ReviewSection updated — seller reply inline form | ✅ Done |
-| ReviewSection updated — thumbs up/down voting | ✅ Done |
-| ReviewSection updated — admin hide/unhide button | ✅ Done |
-| ReviewSection updated — AI summary card at top | ✅ Done |
+| ReviewSection — seller reply inline form | ✅ Done |
+| ReviewSection — thumbs up/down voting | ✅ Done |
+| ReviewSection — admin hide/unhide button | ✅ Done |
+| ReviewSection — AI summary card at top | ✅ Done |
 | Sellers blocked from submitting reviews on own products | ✅ Done |
-| Hidden reviews visible only to admin (with opacity + dashed border) | ✅ Done |
-
----
-
-## 📁 Key Files — Phase 8
-
-```
-frontend/ai_marketplace/src/
-├── app/api/reviews/
-│   ├── route.ts                  ← Updated: includes reply, filters hidden
-│   ├── summary/route.ts          ← GET AI summary via Groq
-│   └── [id]/
-│       ├── reply/route.ts        ← POST seller reply
-│       ├── vote/route.ts         ← POST helpful/notHelpful vote
-│       └── hide/route.ts         ← PATCH admin hide/unhide
-└── components/products/
-    └── ReviewSection.tsx         ← Full rewrite with all Phase 8 features
-```
+| Hidden reviews visible only to admin (opacity + dashed border) | ✅ Done |
 
 ---
 
@@ -390,37 +203,104 @@ frontend/ai_marketplace/src/
 | Admin reviews page (`/admin/reviews`) — hide/unhide + filter | ✅ Done |
 | Admin link in Navbar (ADMIN role only) | ✅ Done |
 | Banned users blocked from login | ✅ Done |
+| JWT role refresh from DB on every token update | ✅ Done |
 
 ---
 
-## 📁 Key Files — Phase 9
+## ✅ Phase 9.5 — Platform Fee System — COMPLETED (Week 13)
+
+| Task | Status |
+|------|--------|
+| `PlatformFee` model + `FeeStatus` enum added + migrated | ✅ Done |
+| Seller fees API (`GET /api/seller/fees`) — calculates last month earnings, upserts fee, marks overdue | ✅ Done |
+| Fee payment submission API (`POST /api/seller/fees/pay`) — seller submits UTR | ✅ Done |
+| Admin fees list API (`GET /api/admin/fees`) — all fees with totals | ✅ Done |
+| Admin fee action API (`PATCH /api/admin/fees/[id]`) — confirm / reject UTR / waive | ✅ Done |
+| Seller dashboard — last month earnings card | ✅ Done |
+| Seller dashboard — 2% fee due banner with UPI ID `hritikguptak@paytm` | ✅ Done |
+| Seller dashboard — UTR input + Submit Payment button | ✅ Done |
+| Seller dashboard — overdue warning (red banner after 5th of month) | ✅ Done |
+| Seller dashboard — fee history table | ✅ Done |
+| Admin fees page (`/admin/fees`) — collected / pending / overdue summary cards | ✅ Done |
+| Admin fees page — confirm / reject UTR / waive actions | ✅ Done |
+| Admin fees page — filter by status | ✅ Done |
+| Admin dashboard — overdue fees count + amount stat card | ✅ Done |
+| Admin sidebar — Platform Fees link added | ✅ Done |
+
+---
+
+## 📁 Key Files — Phase 9 + 9.5
 
 ```
 frontend/ai_marketplace/src/
 ├── app/
 │   ├── admin/
-│   │   ├── layout.tsx          ← Sidebar nav, ADMIN guard
-│   │   ├── page.tsx            ← Stats dashboard
-│   │   ├── products/page.tsx   ← Approve/reject/delete
-│   │   ├── users/page.tsx      ← Ban/unban + role change
-│   │   └── reviews/page.tsx    ← Hide/unhide moderation
-│   └── api/admin/
-│       ├── stats/route.ts
-│       ├── products/route.ts + [id]/route.ts
-│       ├── users/route.ts + [id]/route.ts
-│       └── reviews/route.ts
-└── components/layout/Navbar.tsx    ← Admin link added
+│   │   ├── layout.tsx              ← Sidebar nav, ADMIN guard
+│   │   ├── page.tsx                ← Stats dashboard (incl. overdue fees)
+│   │   ├── products/page.tsx       ← Approve/reject/delete
+│   │   ├── users/page.tsx          ← Ban/unban + role change
+│   │   ├── reviews/page.tsx        ← Hide/unhide moderation
+│   │   └── fees/page.tsx           ← Platform fee management
+│   └── api/
+│       ├── admin/
+│       │   ├── stats/route.ts
+│       │   ├── products/route.ts + [id]/route.ts
+│       │   ├── users/route.ts + [id]/route.ts
+│       │   ├── reviews/route.ts
+│       │   └── fees/route.ts + [id]/route.ts
+│       └── seller/
+│           └── fees/route.ts + pay/route.ts
+└── app/seller/dashboard/page.tsx   ← Updated: fee banner + history
 ```
 
 ---
 
-## 🎉 All Phases Complete!
+## 💰 Platform Fee Logic
 
-The AI Marketplace is fully built across 9 phases.
+- **Rate**: 2% of seller's total monthly earnings
+- **Calculation**: Sum of all `OrderItem.price × quantity` for seller's products in that month
+- **Due date**: 5th of the following month
+- **Payment**: Seller pays via UPI to `hritikguptak@paytm` and submits UTR
+- **Admin actions**: Confirm (verified) / Reject UTR (seller resubmits) / Waive (forgive fee)
+- **Overdue**: Auto-flagged after 5th if still PENDING — admin sees warning flag
 
 ---
 
-## 📋 Future Phases Overview
+## 👤 Roles Explained
+
+| Role | How to get it | Access |
+|------|--------------|--------|
+| `BUYER` | Default on register | Browse + buy products |
+| `SELLER` | Select on register | List + manage own products |
+| `ADMIN` | Manually set in Supabase DB | Full platform control |
+
+**To make yourself Admin:**
+1. Go to supabase.com → Table Editor → `User` table
+2. Find your user → change `role` to `ADMIN`
+3. Sign out and sign back in (JWT refreshes automatically now)
+
+---
+
+## 🐛 Issues Fixed
+
+| Issue | Fix |
+|-------|-----|
+| GitHub auth failed | Fixed with Personal Access Token ✅ |
+| Prisma v7 — `url` not allowed in schema.prisma | Moved to `prisma.config.ts` ✅ |
+| Migration failed on pgBouncer port 6543 | Used `DIRECT_URL` (port 5432) for migrations ✅ |
+| `PrismaClientConstructorValidationError` | Added `@prisma/adapter-pg` with `PrismaPg` ✅ |
+| tailwindcss not resolving (wrong workspace root) | Deleted stray `frontend/package-lock.json` ✅ |
+| Google OAuth `OAuthAccountNotLinked` error | Added `allowDangerousEmailAccountLinking: true` ✅ |
+| UPI `upi://` opens only WhatsApp on iPhone | Switched to individual app deep links ✅ |
+| `llama3-8b-8192` decommissioned | Switched to `llama-3.3-70b-versatile` ✅ |
+| HuggingFace CLIP/BLIP no inference provider | Switched to Groq vision model ✅ |
+| Admin role not reflected without re-login | JWT now refreshes role from DB on every update ✅ |
+| Admin pages crashing on 401 (stale JWT) | Added `if (!r.ok) return` guards on all admin fetches ✅ |
+| Prisma schema corrupted during edit | Restored `model Review {` keyword manually ✅ |
+
+---
+
+## 📋 Phases Overview
 
 | Phase | Feature | Status |
 |-------|---------|--------|
@@ -430,9 +310,10 @@ The AI Marketplace is fully built across 9 phases.
 | Phase 4 | Go Chat System | ✅ Complete |
 | Phase 5 | AI Chatbot + Seller Inbox | ✅ Complete |
 | Phase 6 | Bargaining System | ✅ Complete |
-| Phase 7 | AI Features (CLIP) | ✅ Complete |
+| Phase 7 | AI Features | ✅ Complete |
 | Phase 8 | Reviews System | ✅ Complete |
 | Phase 9 | Admin Dashboard | ✅ Complete |
+| Phase 9.5 | Platform Fee System | ✅ Complete |
 
 ---
 
@@ -445,17 +326,11 @@ The AI Marketplace is fully built across 9 phases.
 - Session 6: ~2 hrs — Phase 4: Go WebSocket server, chat rooms, frontend hook, chat UI, bug fixes
 - Session 7: ~2 hrs — Phase 5: Groq AI, seller inbox, unread badge, bot message persistence
 - Session 8: ~2 hrs — Phase 6: Offer model, APIs, MakeOfferButton, seller/buyer offer pages, deal conversion
+- Session 9: ~2 hrs — Phase 7: AI description generator, similar products, review sentiment, visual search
+- Session 10: ~2 hrs — Phase 8: ReviewReply model, helpfulness voting, admin moderation, AI summary
+- Session 11: ~3 hrs — Phase 9 + 9.5: Admin dashboard, user management, platform fee system
 
 ---
 
-- Session 11: ~2 hrs — Phase 9: Admin dashboard, product approval, user management, review moderation
-
----
-
-**Last Updated**: Phase 9 Complete — Build passing ✅ (50 routes) — ALL PHASES DONE 🎉
-**Status**: Project Complete
-
----
-
-**Last Updated**: Phase 7 Complete — Build passing ✅ (37 routes)
-**Next Goal**: Phase 8 — Reviews System
+**Last Updated**: Phase 9.5 Complete — Build passing ✅ (56 routes)
+**Status**: All phases complete 🎉

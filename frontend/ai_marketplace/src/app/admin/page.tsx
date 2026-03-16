@@ -5,14 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Package, ShoppingBag, Star, TrendingUp, Clock } from "lucide-react";
 
 type Stats = {
-  totalUsers: number;
-  totalSellers: number;
-  totalProducts: number;
-  pendingProducts: number;
-  totalOrders: number;
-  totalRevenue: number;
-  totalReviews: number;
-  hiddenReviews: number;
+  totalUsers: number; totalSellers: number; totalProducts: number; pendingProducts: number;
+  totalOrders: number; totalRevenue: number; totalReviews: number; hiddenReviews: number;
+  overdueFeesCount: number; overdueFeesAmount: number;
 };
 
 const STAT_CARDS = (s: Stats) => [
@@ -21,7 +16,7 @@ const STAT_CARDS = (s: Stats) => [
   { label: "Total Orders", value: s.totalOrders, sub: "all time", icon: ShoppingBag, color: "text-green-600" },
   { label: "Total Revenue", value: `₹${s.totalRevenue.toLocaleString()}`, sub: "platform wide", icon: TrendingUp, color: "text-yellow-600" },
   { label: "Reviews", value: s.totalReviews, sub: `${s.hiddenReviews} hidden`, icon: Star, color: "text-orange-600" },
-  { label: "Pending Approval", value: s.pendingProducts, sub: "products", icon: Clock, color: "text-red-600" },
+  { label: "Overdue Fees", value: s.overdueFeesCount, sub: `₹${s.overdueFeesAmount.toLocaleString()} unpaid`, icon: Clock, color: s.overdueFeesCount > 0 ? "text-red-600" : "text-muted-foreground" },
 ];
 
 export default function AdminDashboard() {
