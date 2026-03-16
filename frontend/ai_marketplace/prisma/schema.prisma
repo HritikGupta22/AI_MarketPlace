@@ -27,7 +27,8 @@ model User {
   accounts  Account[]
   sessions  Session[]
   products  Product[]
-  orders    Order[]
+  buyerOrders  Order[] @relation("BuyerOrders")
+  sellerOrders Order[] @relation("SellerOrders")
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
   reviews   Review[]
@@ -106,9 +107,11 @@ model Order {
   total     Float
   createdAt DateTime    @default(now())
 
-  buyerId String
-  buyer   User        @relation(fields: [buyerId], references: [id])
-  items   OrderItem[]
+  buyerId  String
+  buyer    User        @relation("BuyerOrders", fields: [buyerId], references: [id])
+  sellerId String?
+  seller   User?       @relation("SellerOrders", fields: [sellerId], references: [id])
+  items    OrderItem[]
 }
 
 model OrderItem {

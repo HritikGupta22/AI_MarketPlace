@@ -59,7 +59,7 @@ Next.js Backend (API Routes)
 | User | id, name, email, role (BUYER/SELLER/ADMIN), banned |
 | Product | id, title, description, price, stock, images, approved, sellerId |
 | Category | id, name, slug |
-| Order | id, total, status, buyerId |
+| Order | id, total, status, buyerId, sellerId |
 | OrderItem | id, quantity, price, orderId, productId |
 | Message | id, content, roomId, senderName, senderId, receiverId |
 | Review | id, rating, comment, sentiment, helpful, notHelpful, hidden |
@@ -197,7 +197,26 @@ OVERDUE/PENDING → (admin waives) → WAIVED
 
 ---
 
-## API Routes Summary (56 total)
+## Phase 10 — Order Management ✅ Complete
+
+- `sellerId` added to `Order` model — links order directly to seller
+- Seller can see all incoming orders at `/seller/orders`
+- Seller advances order through: `PENDING → CONFIRMED → SHIPPED → DELIVERED`
+- Buyer can cancel order while still `PENDING` from `/orders/[id]`
+- `PATCH /api/orders/[id]` — guarded: seller can only move forward, buyer can only cancel PENDING
+- `GET /api/seller/orders` — fetches orders by `sellerId`
+- Seller dashboard — "Orders" button added
+
+### Order Status Flow
+```
+PENDING → CONFIRMED → SHIPPED → DELIVERED
+   ↓ (buyer cancel only)
+CANCELLED
+```
+
+---
+
+## API Routes Summary (58 total)
 
 ### Auth
 - `POST /api/auth/register`
@@ -213,7 +232,8 @@ OVERDUE/PENDING → (admin waives) → WAIVED
 
 ### Orders
 - `GET/POST /api/orders`
-- `GET /api/orders/[id]`
+- `GET/PATCH /api/orders/[id]`
+- `GET /api/seller/orders`
 
 ### Chat
 - `GET /api/seller/chats`
@@ -276,5 +296,5 @@ OVERDUE/PENDING → (admin waives) → WAIVED
 
 ---
 
-**Last Updated**: Phase 9.5 Complete — All phases done 🎉
-**Build**: ✅ Passing (56 routes, 0 TypeScript errors)
+**Last Updated**: Phase 10 Complete — All phases done 🎉
+**Build**: ✅ Passing (58 routes, 0 TypeScript errors)

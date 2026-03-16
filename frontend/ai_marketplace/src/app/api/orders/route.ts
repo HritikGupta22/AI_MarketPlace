@@ -14,10 +14,18 @@ export async function POST(req: Request) {
 
   if (!items?.length) return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
 
+  // Resolve sellerId from the first item's product
+  const firstProduct = await prisma.product.findUnique({
+    where: { id: items[0].id },
+    select: { sellerId: true },
+  });
+  if (!firstProduct) return NextResponse.json({ error: "Product not found" }, { status: 404 });
+
   // Create order with items
   const order = await prisma.order.create({
     data: {
       buyerId: session.user.id,
+      sellerId: firstProduct.sellerId,
       total,
       status: "PENDING",
       items: {

@@ -1,29 +1,63 @@
-import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 
-export default async function OrderDetailPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ success?: string }>;
-}) {
-  const { id } = await params;
-  const { success } = await searchParams;
+type Order = {
+  id: string;
+  status: string;
+  total: number;
+  createdAt: string;
+  buyer: { name: string | null; email: string };
+  items: {
+    quantity: number;
+    price: number;
+    product: { title: string; images: string[] };
+  }[];
+};
 
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: {
-      items: { include: { product: { select: { title: true, images: true } } } },
-      buyer: { select: { name: true, email: true } },
-    },
-  });
+const STATUS_STYLES: Record<string, string> = {
+  PENDING: "bg-yellow-100 text-yellow-700",
+  CONFIRMED: "bg-blue-100 text-blue-700",
+  SHIPPED: "bg-purple-100 text-purple-700",
+  DELIVERED: "bg-green-100 text-green-700",
+  CANCELLED: "bg-red-100 text-red-700",
+};
 
-  if (!order) notFound();
+export default function OrderDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const success = searchParams.get("success");
+
+  const [order, setOrder] = useState<Order | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+
+  useEffect(() => {
+    fetch(`/api/orders/${id}`)
+      .then((r) => r.json())
+      .then(setOrder);
+  }, [id]);
+
+  async function cancelOrder() {
+    if (!confirm("Are you sure you want to cancel this order?")) return;
+    setCancelling(true);
+    const res = await fetch(`/api/orders/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "CANCELLED" }),
+    });
+    if (res.ok) {
+      setOrder((prev) => prev ? { ...prev, status: "CANCELLED" } : prev);
+    }
+    setCancelling(false);
+  }
+
+  if (!order) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
@@ -42,11 +76,7 @@ export default async function OrderDetailPage({
               <h1 className="text-lg font-bold">Order #{order.id.slice(-8).toUpperCase()}</h1>
               <p className="text-sm text-muted-foreground">{new Date(order.createdAt).toLocaleString()}</p>
             </div>
-            <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-              order.status === "DELIVERED" ? "bg-green-100 text-green-700" :
-              order.status === "CANCELLED" ? "bg-red-100 text-red-700" :
-              "bg-yellow-100 text-yellow-700"
-            }`}>
+            <span className={`text-xs px-3 py-1 rounded-full font-medium ${STATUS_STYLES[order.status] ?? "bg-yellow-100 text-yellow-700"}`}>
               {order.status}
             </span>
           </div>
@@ -81,6 +111,17 @@ export default async function OrderDetailPage({
           <Button className="w-full">Continue Shopping</Button>
         </Link>
       </div>
+
+      {order.status === "PENDING" && (
+        <Button
+          variant="destructive"
+          className="w-full"
+          disabled={cancelling}
+          onClick={cancelOrder}
+        >
+          {cancelling ? "Cancelling..." : "Cancel Order"}
+        </Button>
+      )}
     </div>
   );
 }

@@ -6,7 +6,7 @@
 - Dev server: http://localhost:3000
 - Current branch: `hritik`
 - GitHub: https://github.com/HritikGupta22/AI_MarketPlace
-- Build: ✅ Passing (56 routes — 0 errors)
+- Build: ✅ Passing (58 routes — 0 errors)
 
 ---
 
@@ -229,28 +229,41 @@
 
 ---
 
-## 📁 Key Files — Phase 9 + 9.5
+## ✅ Phase 10 — Order Management — COMPLETED (Week 14)
+
+| Task | Status |
+|------|--------|
+| `sellerId String?` added to `Order` model | ✅ Done |
+| Named relations `BuyerOrders` / `SellerOrders` on `User` model | ✅ Done |
+| `prisma db push` + `prisma generate` — schema synced to Supabase | ✅ Done |
+| `POST /api/orders` — resolves + stores `sellerId` from first item's product | ✅ Done |
+| `GET /api/orders/[id]` — buyer or seller can fetch their order | ✅ Done |
+| `PATCH /api/orders/[id]` — seller advances status, buyer cancels PENDING only | ✅ Done |
+| `GET /api/seller/orders` — seller fetches all incoming orders by `sellerId` | ✅ Done |
+| `/seller/orders` page — seller sees orders with Confirm / Ship / Deliver buttons | ✅ Done |
+| `/orders/[id]` — converted to client component, Cancel button shown when PENDING | ✅ Done |
+| Seller dashboard — "Orders" button added to header | ✅ Done |
+
+### Order Status Flow
+```
+PENDING → CONFIRMED → SHIPPED → DELIVERED
+   ↓ (buyer can cancel only here)
+CANCELLED
+```
+
+---
+
+## 📁 Key Files — Phase 10
 
 ```
 frontend/ai_marketplace/src/
 ├── app/
-│   ├── admin/
-│   │   ├── layout.tsx              ← Sidebar nav, ADMIN guard
-│   │   ├── page.tsx                ← Stats dashboard (incl. overdue fees)
-│   │   ├── products/page.tsx       ← Approve/reject/delete
-│   │   ├── users/page.tsx          ← Ban/unban + role change
-│   │   ├── reviews/page.tsx        ← Hide/unhide moderation
-│   │   └── fees/page.tsx           ← Platform fee management
+│   ├── orders/[id]/page.tsx          ← Client component + Cancel button
+│   ├── seller/orders/page.tsx        ← Seller order management UI
 │   └── api/
-│       ├── admin/
-│       │   ├── stats/route.ts
-│       │   ├── products/route.ts + [id]/route.ts
-│       │   ├── users/route.ts + [id]/route.ts
-│       │   ├── reviews/route.ts
-│       │   └── fees/route.ts + [id]/route.ts
-│       └── seller/
-│           └── fees/route.ts + pay/route.ts
-└── app/seller/dashboard/page.tsx   ← Updated: fee banner + history
+│       ├── orders/[id]/route.ts      ← GET + PATCH (status update)
+│       └── seller/orders/route.ts    ← GET seller's incoming orders
+└── prisma/schema.prisma              ← sellerId added to Order model
 ```
 
 ---
@@ -297,6 +310,24 @@ frontend/ai_marketplace/src/
 | Admin role not reflected without re-login | JWT now refreshes role from DB on every update ✅ |
 | Admin pages crashing on 401 (stale JWT) | Added `if (!r.ok) return` guards on all admin fetches ✅ |
 | Prisma schema corrupted during edit | Restored `model Review {` keyword manually ✅ |
+| `sellerId` migration blocked by existing rows | Made `sellerId` optional (`String?`) ✅ |
+
+---
+
+## ⏱️ Time Log
+
+- Session 1: ~45 min — Project setup, Next.js init
+- Session 2: ~2 hrs — Prisma, Auth, Navbar, Footer, Migration, Build fixes
+- Session 3: ~1 hr — Forgot/Reset password, Google OAuth fixes, Sign out fix
+- Session 4: ~2 hrs — Phase 2: Cloudinary, Categories seed, Product CRUD, Seller dashboard, Product pages
+- Session 5: ~2 hrs — Phase 3: Zustand cart, Checkout, UPI payment, Orders, Email confirmation
+- Session 6: ~2 hrs — Phase 4: Go WebSocket server, chat rooms, frontend hook, chat UI, bug fixes
+- Session 7: ~2 hrs — Phase 5: Groq AI, seller inbox, unread badge, bot message persistence
+- Session 8: ~2 hrs — Phase 6: Offer model, APIs, MakeOfferButton, seller/buyer offer pages, deal conversion
+- Session 9: ~2 hrs — Phase 7: AI description generator, similar products, review sentiment, visual search
+- Session 10: ~2 hrs — Phase 8: ReviewReply model, helpfulness voting, admin moderation, AI summary
+- Session 11: ~3 hrs — Phase 9 + 9.5: Admin dashboard, user management, platform fee system
+- Session 12: ~1 hr — Phase 10: Order management, seller order page, buyer cancel, sellerId on Order
 
 ---
 
@@ -314,23 +345,9 @@ frontend/ai_marketplace/src/
 | Phase 8 | Reviews System | ✅ Complete |
 | Phase 9 | Admin Dashboard | ✅ Complete |
 | Phase 9.5 | Platform Fee System | ✅ Complete |
+| Phase 10 | Order Management | ✅ Complete |
 
 ---
 
-## ⏱️ Time Log
-- Session 1: ~45 min — Project setup, Next.js init
-- Session 2: ~2 hrs — Prisma, Auth, Navbar, Footer, Migration, Build fixes
-- Session 3: ~1 hr — Forgot/Reset password, Google OAuth fixes, Sign out fix
-- Session 4: ~2 hrs — Phase 2: Cloudinary, Categories seed, Product CRUD, Seller dashboard, Product pages
-- Session 5: ~2 hrs — Phase 3: Zustand cart, Checkout, UPI payment, Orders, Email confirmation
-- Session 6: ~2 hrs — Phase 4: Go WebSocket server, chat rooms, frontend hook, chat UI, bug fixes
-- Session 7: ~2 hrs — Phase 5: Groq AI, seller inbox, unread badge, bot message persistence
-- Session 8: ~2 hrs — Phase 6: Offer model, APIs, MakeOfferButton, seller/buyer offer pages, deal conversion
-- Session 9: ~2 hrs — Phase 7: AI description generator, similar products, review sentiment, visual search
-- Session 10: ~2 hrs — Phase 8: ReviewReply model, helpfulness voting, admin moderation, AI summary
-- Session 11: ~3 hrs — Phase 9 + 9.5: Admin dashboard, user management, platform fee system
-
----
-
-**Last Updated**: Phase 9.5 Complete — Build passing ✅ (56 routes)
+**Last Updated**: Phase 10 Complete — Build passing ✅ (58 routes)
 **Status**: All phases complete 🎉
