@@ -6,7 +6,7 @@
 - Dev server: http://localhost:3000
 - Current branch: `hritik`
 - GitHub: https://github.com/HritikGupta22/AI_MarketPlace
-- Build: ✅ Passing (37 routes — 0 errors)
+- Build: ✅ Passing (42 routes — 0 errors)
 
 ---
 
@@ -336,12 +336,49 @@ frontend/ai_marketplace/src/
 
 ---
 
-## 📋 Next Steps — Phase 8 (Reviews System)
+## ✅ Phase 8 — COMPLETED (Week 12)
 
-1. [ ] Seller can reply to reviews
-2. [ ] Review helpfulness voting
-3. [ ] Review moderation (admin)
-4. [ ] AI review summary (Groq — summarize all reviews for a product)
+| Task | Status |
+|------|--------|
+| `helpful`, `notHelpful`, `hidden` fields added to Review + migrated | ✅ Done |
+| `ReviewReply` model added + migrated | ✅ Done |
+| Seller reply API (`POST /api/reviews/[id]/reply`) | ✅ Done |
+| Helpfulness voting API (`POST /api/reviews/[id]/vote`) | ✅ Done |
+| Admin hide/unhide API (`PATCH /api/reviews/[id]/hide`) | ✅ Done |
+| AI review summary API (`GET /api/reviews/summary`) via Groq | ✅ Done |
+| ReviewSection updated — seller reply inline form | ✅ Done |
+| ReviewSection updated — thumbs up/down voting | ✅ Done |
+| ReviewSection updated — admin hide/unhide button | ✅ Done |
+| ReviewSection updated — AI summary card at top | ✅ Done |
+| Sellers blocked from submitting reviews on own products | ✅ Done |
+| Hidden reviews visible only to admin (with opacity + dashed border) | ✅ Done |
+
+---
+
+## 📁 Key Files — Phase 8
+
+```
+frontend/ai_marketplace/src/
+├── app/api/reviews/
+│   ├── route.ts                  ← Updated: includes reply, filters hidden
+│   ├── summary/route.ts          ← GET AI summary via Groq
+│   └── [id]/
+│       ├── reply/route.ts        ← POST seller reply
+│       ├── vote/route.ts         ← POST helpful/notHelpful vote
+│       └── hide/route.ts         ← PATCH admin hide/unhide
+└── components/products/
+    └── ReviewSection.tsx         ← Full rewrite with all Phase 8 features
+```
+
+---
+
+## 📋 Next Steps — Phase 9 (Admin Dashboard)
+
+1. [ ] Admin dashboard (`/admin`)
+2. [ ] Product approval/rejection
+3. [ ] User management (ban/unban)
+4. [ ] Platform stats (total users, orders, revenue)
+5. [ ] Review moderation panel
 
 ---
 
@@ -356,8 +393,8 @@ frontend/ai_marketplace/src/
 | Phase 5 | AI Chatbot + Seller Inbox | ✅ Complete |
 | Phase 6 | Bargaining System | ✅ Complete |
 | Phase 7 | AI Features (CLIP) | ✅ Complete |
-| Phase 8 | Reviews System | 🔜 Next |
-| Phase 9 | Admin Dashboard | ⏳ Pending |
+| Phase 8 | Reviews System | ✅ Complete |
+| Phase 9 | Admin Dashboard | 🔜 Next |
 
 ---
 
@@ -373,7 +410,7 @@ frontend/ai_marketplace/src/
 
 ---
 
-- Session 9: ~2 hrs — Phase 7: AI description generator, similar products, review sentiment, CLIP visual search
+- Session 10: ~2 hrs — Phase 8: ReviewReply model, helpfulness voting, admin moderation, AI summary, ReviewSection rewrite
 
 ---
 

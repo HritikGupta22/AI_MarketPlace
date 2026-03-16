@@ -17,7 +17,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       category: true,
       seller: { select: { id: true, name: true, image: true } },
       reviews: {
-        include: { user: { select: { name: true, image: true } } },
+        include: {
+          user: { select: { name: true, image: true } },
+          reply: { include: { seller: { select: { name: true } } } },
+        },
+        where: { hidden: false },
         orderBy: { createdAt: "desc" },
       },
     },
@@ -142,7 +146,19 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      <ReviewSection productId={id} initialReviews={product.reviews.map((r) => ({ ...r, sentiment: r.sentiment ?? "", createdAt: r.createdAt.toISOString() }))} />
+      <ReviewSection
+        productId={id}
+        sellerId={product.sellerId}
+        initialReviews={product.reviews.map((r) => ({
+          ...r,
+          sentiment: r.sentiment ?? "",
+          helpful: r.helpful,
+          notHelpful: r.notHelpful,
+          hidden: r.hidden,
+          createdAt: r.createdAt.toISOString(),
+          reply: r.reply ? { ...r.reply, createdAt: r.reply.createdAt.toISOString() } : null,
+        }))}
+      />
     </div>
   );
 }

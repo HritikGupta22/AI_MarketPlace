@@ -43,7 +43,10 @@ export async function POST(req: NextRequest) {
 
   const review = await prisma.review.create({
     data: { productId, userId: session.user.id, rating, comment: comment ?? null, sentiment },
-    include: { user: { select: { name: true, image: true } } },
+    include: {
+      user: { select: { name: true, image: true } },
+      reply: { include: { seller: { select: { name: true } } } },
+    },
   });
 
   return NextResponse.json(review, { status: 201 });
@@ -55,8 +58,11 @@ export async function GET(req: NextRequest) {
   if (!productId) return NextResponse.json({ error: "productId required" }, { status: 400 });
 
   const reviews = await prisma.review.findMany({
-    where: { productId },
-    include: { user: { select: { name: true, image: true } } },
+    where: { productId, hidden: false },
+    include: {
+      user: { select: { name: true, image: true } },
+      reply: { include: { seller: { select: { name: true } } } },
+    },
     orderBy: { createdAt: "desc" },
   });
   return NextResponse.json(reviews);
