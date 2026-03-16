@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Store, ScanSearch } from "lucide-react";
+import { ShoppingCart, Store, ScanSearch, ShieldCheck } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState, useCallback } from "react";
 
@@ -60,7 +60,14 @@ export default function Navbar() {
 
           {session ? (
             <>
-              {session.user.role === "SELLER" && (
+            {session.user.role === "ADMIN" && (
+              <Link href="/admin">
+                <Button variant="ghost" size="sm" className="gap-1.5">
+                  <ShieldCheck className="size-4" />Admin
+                </Button>
+              </Link>
+            )}
+            {session.user.role === "SELLER" && (
                 <>
                   <Link href="/seller/dashboard">
                     <Button variant="ghost" size="sm">Dashboard</Button>
