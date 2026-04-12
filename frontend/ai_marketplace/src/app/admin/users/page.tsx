@@ -7,7 +7,7 @@ import { ShieldCheck, ShieldOff, UserX, UserCheck } from "lucide-react";
 
 type User = {
   id: string; name: string | null; email: string; role: string; banned: boolean; createdAt: string;
-  _count: { products: number; orders: number; reviews: number };
+  _count: { products: number; buyerOrders: number; reviews: number };
 };
 
 const ROLE_STYLES: Record<string, string> = {
@@ -74,7 +74,7 @@ export default function AdminUsersPage() {
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ${ROLE_STYLES[u.role]}`}>{u.role}</span>
                     {u.banned && <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-medium">BANNED</span>}
                   </div>
-                  <p className="text-xs text-muted-foreground">{u.email} · {u._count.products} products · {u._count.orders} orders · {u._count.reviews} reviews</p>
+                  <p className="text-xs text-muted-foreground">{u.email} · {u._count.products} products · {u._count.buyerOrders} orders · {u._count.reviews} reviews</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <select

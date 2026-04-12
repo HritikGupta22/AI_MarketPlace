@@ -195,6 +195,19 @@ model PlatformFee {
   @@unique([sellerId, month, year])
 }
 
+model Banner {
+  id        String   @id @default(cuid())
+  label     String
+  title     String
+  subtitle  String
+  imageUrl  String
+  link      String   @default("/products")
+  color     String   @default("from-slate-900 to-slate-700")
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
 enum FeeStatus {
   PENDING
   SUBMITTED

@@ -17,7 +17,7 @@ An AI-powered multi-vendor e-commerce marketplace built with Next.js, Go WebSock
 | Frontend | Next.js 16 (App Router), TypeScript, Tailwind CSS v4, shadcn/ui |
 | State | Zustand, React Hook Form, Zod |
 | Backend | Next.js API Routes |
-| Database | PostgreSQL via Supabase, Prisma ORM v7 |
+| Database | PostgreSQL via Neon, Prisma ORM v7 |
 | Auth | NextAuth.js (Credentials + Google OAuth) |
 | Realtime | Go WebSocket Server (Gorilla WebSocket) |
 | AI | Groq API (llama-3.3-70b-versatile, llama-4-scout vision) |
@@ -36,7 +36,7 @@ Browser (Next.js UI)
         ▼
 Next.js Backend (API Routes)
         │
-        ├──────────► Supabase PostgreSQL (Prisma ORM)
+        ├──────────► Neon PostgreSQL (Prisma ORM)
         │
         ├──────────► Go Chat Server :8080 (WebSocket)
         │                     │
@@ -66,7 +66,7 @@ Next.js Backend (API Routes)
 | ReviewReply | id, content, reviewId, sellerId |
 | Offer | id, amount, quantity, status, counterAmount, expiresAt |
 | PlatformFee | id, month, year, earnings, feeAmount, status, utr, dueDate |
-| PasswordResetToken | id, email, token, expires |
+| Banner | id, label, title, subtitle, imageUrl, link, color, active, order |
 
 ---
 
@@ -216,7 +216,38 @@ CANCELLED
 
 ---
 
-## API Routes Summary (58 total)
+## Phase 11 — Database Migration + Fixes ✅ Complete
+
+- Migrated from **Supabase → Neon PostgreSQL** (never pauses on inactivity)
+- `prisma.ts` runtime client uses `DIRECT_URL` to avoid pgBouncer timeouts
+- Fixed `admin/users` — `orders` → `buyerOrders` after User relation rename
+- `suppressHydrationWarning` on Input component (browser extension false positive)
+
+---
+
+## Phase 12 — Landing Page + Banners ✅ Complete
+
+- Full landing page with hero, rotating banners, features, reviews, owner section
+- `Banner` model — admin-controlled dynamic banners
+- Admin can add/edit/delete/reorder/toggle banners from `/admin/banners`
+- Homepage fetches banners from DB, fills from static if < 5
+- Typewriter tagline effect — types, holds 1s, deletes, loops
+- Customer reviews pulled from DB (POSITIVE, rating ≥ 4)
+- Footer links perfectly centered with absolute positioning
+
+---
+
+## Phase 13 — Deployment 🔜 Next
+
+- Deploy Next.js frontend to **Vercel**
+- Deploy Go chat server to **Render** (free tier)
+- Set all `.env` variables in Vercel dashboard
+- Configure production `NEXTAUTH_URL`
+- Test full flow on production URL
+
+---
+
+## API Routes Summary (60 total)
 
 ### Auth
 - `POST /api/auth/register`
@@ -260,6 +291,14 @@ CANCELLED
 - `GET /api/seller/fees`
 - `POST /api/seller/fees/pay`
 
+### Banners
+- `GET /api/banners`
+- `GET/POST /api/admin/banners`
+- `PATCH/DELETE /api/admin/banners/[id]`
+
+### Reviews (additional)
+- `GET /api/reviews/featured`
+
 ### Admin
 - `GET /api/admin/stats`
 - `GET /api/admin/products`
@@ -277,7 +316,7 @@ CANCELLED
 | Service | Usage | Cost |
 |---------|-------|------|
 | Vercel | Frontend hosting | $0 |
-| Supabase | PostgreSQL database | $0 |
+| Neon | PostgreSQL database | $0 |
 | Cloudinary | Image storage | $0 |
 | Groq API | AI (LLaMA models) | $0 |
 | Resend | Email delivery | $0 |
@@ -291,10 +330,10 @@ CANCELLED
 
 - **Frontend**: Deploy to Vercel — `npm run build` must pass
 - **Go Chat Server**: Deploy to Fly.io or Render (free tier)
-- **Database**: Already on Supabase cloud
+- **Database**: Neon PostgreSQL (cloud, always active)
 - **Environment variables**: Copy `.env` values to Vercel dashboard
 
 ---
 
-**Last Updated**: Phase 10 Complete — All phases done 🎉
-**Build**: ✅ Passing (58 routes, 0 TypeScript errors)
+**Last Updated**: Phase 12 Complete — Ready for deployment 🚀
+**Build**: ✅ Passing (60 routes, 0 TypeScript errors)

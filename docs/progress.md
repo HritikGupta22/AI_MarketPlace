@@ -6,6 +6,7 @@
 - Dev server: http://localhost:3000
 - Current branch: `hritik`
 - GitHub: https://github.com/HritikGupta22/AI_MarketPlace
+- Database: ✅ Neon PostgreSQL (migrated from Supabase)
 - Build: ✅ Passing (58 routes — 0 errors)
 
 ---
@@ -235,7 +236,7 @@
 |------|--------|
 | `sellerId String?` added to `Order` model | ✅ Done |
 | Named relations `BuyerOrders` / `SellerOrders` on `User` model | ✅ Done |
-| `prisma db push` + `prisma generate` — schema synced to Supabase | ✅ Done |
+| `prisma db push` + `prisma generate` — schema synced | ✅ Done |
 | `POST /api/orders` — resolves + stores `sellerId` from first item's product | ✅ Done |
 | `GET /api/orders/[id]` — buyer or seller can fetch their order | ✅ Done |
 | `PATCH /api/orders/[id]` — seller advances status, buyer cancels PENDING only | ✅ Done |
@@ -243,6 +244,7 @@
 | `/seller/orders` page — seller sees orders with Confirm / Ship / Deliver buttons | ✅ Done |
 | `/orders/[id]` — converted to client component, Cancel button shown when PENDING | ✅ Done |
 | Seller dashboard — "Orders" button added to header | ✅ Done |
+| Fixed `admin/users` route — `orders` → `buyerOrders` after relation rename | ✅ Done |
 
 ### Order Status Flow
 ```
@@ -253,18 +255,17 @@ CANCELLED
 
 ---
 
-## 📁 Key Files — Phase 10
+## ✅ Phase 11 — Database Migration + Fixes — COMPLETED (Week 14)
 
-```
-frontend/ai_marketplace/src/
-├── app/
-│   ├── orders/[id]/page.tsx          ← Client component + Cancel button
-│   ├── seller/orders/page.tsx        ← Seller order management UI
-│   └── api/
-│       ├── orders/[id]/route.ts      ← GET + PATCH (status update)
-│       └── seller/orders/route.ts    ← GET seller's incoming orders
-└── prisma/schema.prisma              ← sellerId added to Order model
-```
+| Task | Status |
+|------|--------|
+| Migrated database from Supabase → Neon PostgreSQL | ✅ Done |
+| Neon project created — AWS Asia Pacific (Singapore) | ✅ Done |
+| `DATABASE_URL` + `DIRECT_URL` updated in `.env` | ✅ Done |
+| `prisma db push` to Neon — all tables created | ✅ Done |
+| Categories re-seeded on Neon | ✅ Done |
+| `prisma.ts` — switched to `DIRECT_URL` for runtime client (avoids pgBouncer issues) | ✅ Done |
+| `suppressHydrationWarning` added to Input component (browser extension false positive) | ✅ Done |
 
 ---
 
@@ -285,12 +286,12 @@ frontend/ai_marketplace/src/
 |------|--------------|--------|
 | `BUYER` | Default on register | Browse + buy products |
 | `SELLER` | Select on register | List + manage own products |
-| `ADMIN` | Manually set in Supabase DB | Full platform control |
+| `ADMIN` | Manually set in Neon DB | Full platform control |
 
 **To make yourself Admin:**
-1. Go to supabase.com → Table Editor → `User` table
-2. Find your user → change `role` to `ADMIN`
-3. Sign out and sign back in (JWT refreshes automatically now)
+1. Go to [neon.tech](https://neon.tech) → your project → **Tables**
+2. Find `User` table → find your user → change `role` to `ADMIN`
+3. Sign out and sign back in
 
 ---
 
@@ -311,6 +312,10 @@ frontend/ai_marketplace/src/
 | Admin pages crashing on 401 (stale JWT) | Added `if (!r.ok) return` guards on all admin fetches ✅ |
 | Prisma schema corrupted during edit | Restored `model Review {` keyword manually ✅ |
 | `sellerId` migration blocked by existing rows | Made `sellerId` optional (`String?`) ✅ |
+| Supabase free tier pausing after 7 days inactivity | Migrated to Neon (never pauses) ✅ |
+| `P1001` Can't reach database — pgBouncer timeout | Switched runtime client to `DIRECT_URL` ✅ |
+| `admin/users` crash — unknown field `orders` | Renamed to `buyerOrders` after relation rename ✅ |
+| Hydration mismatch on Input — browser extension | Added `suppressHydrationWarning` to Input ✅ |
 
 ---
 
@@ -328,6 +333,33 @@ frontend/ai_marketplace/src/
 - Session 10: ~2 hrs — Phase 8: ReviewReply model, helpfulness voting, admin moderation, AI summary
 - Session 11: ~3 hrs — Phase 9 + 9.5: Admin dashboard, user management, platform fee system
 - Session 12: ~1 hr — Phase 10: Order management, seller order page, buyer cancel, sellerId on Order
+- Session 13: ~1 hr — Phase 11: Neon migration, bug fixes, hydration warning fix
+
+---
+
+## ✅ Phase 12 — Landing Page + Banners — COMPLETED (Week 15)
+
+| Task | Status |
+|------|--------|
+| Full landing page built (`/`) — hero, banners, features, reviews, owner section, footer CTA | ✅ Done |
+| `Banner` model added to Prisma schema | ✅ Done |
+| `prisma db push` + `prisma generate` — Banner table created on Neon | ✅ Done |
+| `GET /api/banners` — public, returns active banners ordered by `order` | ✅ Done |
+| `GET/POST /api/admin/banners` — admin CRUD | ✅ Done |
+| `PATCH/DELETE /api/admin/banners/[id]` — admin update/delete | ✅ Done |
+| `/admin/banners` page — add, preview, toggle active, reorder, delete | ✅ Done |
+| Banners link added to admin sidebar | ✅ Done |
+| Homepage fetches banners from DB, fills remaining from static if < 5 | ✅ Done |
+| `GET /api/reviews/featured` — top 6 positive reviews for homepage | ✅ Done |
+| Hero — "AI Marketplace" large heading + gradient animated slogan | ✅ Done |
+| Typewriter effect on tagline — types, holds 1s, deletes, loops forever | ✅ Done |
+| Rotating ad banner — auto-rotates every 4s with dot navigation | ✅ Done |
+| Features section — 4 cards (AI Search, Bargaining, Payments, AI Chat) | ✅ Done |
+| Customer reviews section — real DB reviews with user photo / letter avatar | ✅ Done |
+| Owner section — Hritik photo + description + CTA buttons | ✅ Done |
+| Footer CTA — Create Account + Browse Products | ✅ Done |
+| Footer links (Products / Sell / Sign In) perfectly centered with absolute positioning | ✅ Done |
+| `suppressHydrationWarning` added to Input component | ✅ Done |
 
 ---
 
@@ -346,8 +378,11 @@ frontend/ai_marketplace/src/
 | Phase 9 | Admin Dashboard | ✅ Complete |
 | Phase 9.5 | Platform Fee System | ✅ Complete |
 | Phase 10 | Order Management | ✅ Complete |
+| Phase 11 | DB Migration + Fixes | ✅ Complete |
+| Phase 12 | Landing Page + Banners | ✅ Complete |
+| Phase 13 | Deployment | 🔜 Next |
 
 ---
 
-**Last Updated**: Phase 10 Complete — Build passing ✅ (58 routes)
-**Status**: All phases complete 🎉
+**Last Updated**: Phase 12 Complete — Build passing ✅ (60 routes)
+**Status**: Core features complete — ready for deployment 🚀
