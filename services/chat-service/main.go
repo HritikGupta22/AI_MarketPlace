@@ -36,8 +36,21 @@ func main() {
 	}
 
 	log.Printf("🚀 Chat server running on port %s", port)
-	if err := http.ListenAndServe(":"+port, handler); err != nil {
-		log.Fatal("Server error:", err)
+
+	certFile := os.Getenv("TLS_CERT_FILE")
+	keyFile := os.Getenv("TLS_KEY_FILE")
+
+	if certFile != "" && keyFile != "" {
+		log.Println("TLS enabled")
+		if err := http.ListenAndServeTLS(":"+port, certFile, keyFile, handler); err != nil {
+			log.Fatal("Server error:", err)
+		}
+	} else {
+		// Running behind a TLS-terminating reverse proxy (e.g. Render, nginx)
+		log.Println("Running behind reverse proxy, TLS handled externally")
+		if err := http.ListenAndServe(":"+port, handler); err != nil {
+			log.Fatal("Server error:", err)
+		}
 	}
 }
 
