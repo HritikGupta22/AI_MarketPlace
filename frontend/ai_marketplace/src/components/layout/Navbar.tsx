@@ -7,7 +7,19 @@ import { ShoppingCart, Store, ScanSearch, ShieldCheck } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { useEffect, useState, useCallback } from "react";
 
-const STORAGE_KEY = "seller_chats_last_seen";
+const CHATS_SEEN_STORE = "seller_chats_last_seen";
+
+function readSeenMap(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(CHATS_SEEN_STORE);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    return parsed as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -22,7 +34,7 @@ export default function Navbar() {
     try {
       const res = await fetch("/api/seller/chats/unread");
       const data = await res.json();
-      const lastSeen: Record<string, string> = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
+      const lastSeen = readSeenMap();
       let unread = 0;
       for (const room of data.rooms ?? []) {
         const seenAt = lastSeen[room.roomId];
@@ -35,7 +47,6 @@ export default function Navbar() {
   useEffect(() => {
     if (!mounted) return;
     fetchUnread();
-    // Poll every 30 seconds
     const interval = setInterval(fetchUnread, 30000);
     return () => clearInterval(interval);
   }, [mounted, fetchUnread]);
@@ -73,15 +84,14 @@ export default function Navbar() {
                     <Button variant="ghost" size="sm">Dashboard</Button>
                   </Link>
                   <Link href="/seller/chats" onClick={() => {
-                    // Mark all rooms as seen on click
                     fetch("/api/seller/chats/unread")
                       .then(r => r.json())
                       .then(data => {
-                        const lastSeen: Record<string, string> = {};
+                        const seenMap: Record<string, string> = {};
                         for (const room of data.rooms ?? []) {
-                          lastSeen[room.roomId] = room.lastMessageAt;
+                          seenMap[room.roomId] = room.lastMessageAt;
                         }
-                        localStorage.setItem(STORAGE_KEY, JSON.stringify(lastSeen));
+                        localStorage.setItem(CHATS_SEEN_STORE, JSON.stringify(seenMap));
                         setUnreadCount(0);
                       });
                   }}>

@@ -2,12 +2,15 @@
 
 ---
 
-## 🔄 Current Status
-- Dev server: http://localhost:3000
+## 🚀 Deployment Status
+- **Live URL**: https://ai-market-place-tau.vercel.app/
+- **Go Chat Server**: wss://ai-marketplace-sk3u.onrender.com
+- **Frontend**: Vercel
+- **Chat Service**: Render
 - Current branch: `hritik`
 - GitHub: https://github.com/HritikGupta22/AI_MarketPlace
 - Database: ✅ Neon PostgreSQL (migrated from Supabase)
-- Build: ✅ Passing (58 routes — 0 errors)
+- Build: ✅ Passing (60 routes — 0 errors)
 
 ---
 
@@ -334,6 +337,23 @@ CANCELLED
 - Session 11: ~3 hrs — Phase 9 + 9.5: Admin dashboard, user management, platform fee system
 - Session 12: ~1 hr — Phase 10: Order management, seller order page, buyer cancel, sellerId on Order
 - Session 13: ~1 hr — Phase 11: Neon migration, bug fixes, hydration warning fix
+- Session 14: ~1 hr — Phase 13: Vercel + Render deployment, env config, production testing
+
+---
+
+## ✅ Phase 13 — Deployment — COMPLETED (Week 15)
+
+| Task | Status |
+|------|--------|
+| Deploy Next.js frontend to Vercel | ✅ Done |
+| Deploy Go chat server to Render | ✅ Done |
+| Set all `.env` variables in Vercel dashboard | ✅ Done |
+| Configure production `NEXTAUTH_URL` | ✅ Done |
+| Update WebSocket URL to `wss://` in production | ✅ Done |
+| Full flow tested on production URL | ✅ Done |
+
+- **Frontend**: https://ai-market-place-tau.vercel.app/
+- **Go Chat Server**: wss://ai-marketplace-sk3u.onrender.com
 
 ---
 
@@ -380,9 +400,11 @@ CANCELLED
 | Phase 10 | Order Management | ✅ Complete |
 | Phase 11 | DB Migration + Fixes | ✅ Complete |
 | Phase 12 | Landing Page + Banners | ✅ Complete |
-| Phase 13 | Deployment | 🔜 Next |
+| Phase 13 | Deployment | ✅ Complete |
 
 ---
 
-**Last Updated**: Phase 12 Complete — Build passing ✅ (60 routes)
-**Status**: Core features complete — ready for deployment 🚀
+**Last Updated**: Phase 13 Complete — Deployed ✅
+**Status**: Live in production 🚀
+- Frontend: https://ai-market-place-tau.vercel.app/
+- Go Chat Server: wss://ai-marketplace-sk3u.onrender.com

@@ -8,8 +8,30 @@ import ChatButton from "@/components/products/ChatButton";
 import MakeOfferButton from "@/components/products/MakeOfferButton";
 import ReviewSection from "@/components/products/ReviewSection";
 
+function tokenize(text: string): Record<string, number> {
+  const words = text.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/);
+  const freq: Record<string, number> = {};
+  for (const w of words) if (w) freq[w] = (freq[w] ?? 0) + 1;
+  return freq;
+}
+
+function cosineSimilarity(a: Record<string, number>, b: Record<string, number>): number {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  let dot = 0, magA = 0, magB = 0;
+  for (const k of keys) {
+    const va = a[k] ?? 0, vb = b[k] ?? 0;
+    dot += va * vb; magA += va * va; magB += vb * vb;
+  }
+  return magA && magB ? dot / (Math.sqrt(magA) * Math.sqrt(magB)) : 0;
+}
+
+function isValidId(id: unknown): id is string {
+  return typeof id === "string" && /^[a-zA-Z0-9_-]{1,64}$/.test(id);
+}
+
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  if (!isValidId(id)) notFound();
 
   const product = await prisma.product.findUnique({
     where: { id, approved: true },
@@ -33,8 +55,24 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     ? (product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length).toFixed(1)
     : null;
 
-  const similarRes = await fetch(`${process.env.NEXTAUTH_URL}/api/products/${id}/similar`, { cache: "no-store" }).catch(() => null);
-  const similar: { id: string; title: string; price: number; images: string[] }[] = similarRes?.ok ? await similarRes.json() : [];
+  const allProducts = await prisma.product.findMany({
+    where: { approved: true, id: { not: id } },
+    include: { category: true },
+    take: 100,
+  });
+
+  const targetVec = tokenize(product.title + " " + product.description + " " + product.category.name);
+  const similar = allProducts
+    .map((p) => ({
+      id: p.id,
+      title: p.title,
+      price: p.price,
+      images: p.images,
+      score: cosineSimilarity(targetVec, tokenize(p.title + " " + p.description + " " + p.category.name)),
+    }))
+    .filter((p) => p.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">

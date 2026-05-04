@@ -30,6 +30,33 @@ const CHAT_SERVER = process.env.NEXT_PUBLIC_CHAT_SERVER_URL ?? "ws://localhost:8
 const BOT_ID = "ai-bot";
 const BOT_NAME = "AI Assistant";
 
+const VALID_TYPES = new Set([
+  "message", "typing", "stop_typing", "history", "ai_disabled", "ai_enabled",
+]);
+
+function parseWSMessage(raw: unknown): WSMessage | null {
+  if (typeof raw !== "string") return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const obj = parsed as Record<string, unknown>;
+  if (typeof obj.type !== "string" || !VALID_TYPES.has(obj.type)) return null;
+  return obj as unknown as WSMessage;
+}
+
+function buildChatUrl(roomId: string, userId: string, userName: string): string {
+  const base = CHAT_SERVER.replace(/\/$/, "");
+  const params = new URLSearchParams();
+  params.set("roomId", roomId);
+  params.set("userId", userId);
+  params.set("userName", userName);
+  return base + "/ws?" + params.toString();
+}
+
 export function useChat(
   roomId: string,
   userId: string,
@@ -47,14 +74,15 @@ export function useChat(
   useEffect(() => {
     if (!roomId || !userId) return;
 
-    const url = `${CHAT_SERVER}/ws?roomId=${roomId}&userId=${userId}&userName=${encodeURIComponent(userName)}`;
+    const url = buildChatUrl(roomId, userId, userName);
     ws.current = new WebSocket(url);
 
     ws.current.onopen = () => setConnected(true);
     ws.current.onclose = () => setConnected(false);
 
     ws.current.onmessage = (event) => {
-      const data: WSMessage = JSON.parse(event.data);
+      const data = parseWSMessage(event.data);
+      if (!data) return;
 
       switch (data.type) {
         case "history":
@@ -84,7 +112,6 @@ export function useChat(
   }, [roomId, userId, userName]);
 
   const sendBotMessage = useCallback((content: string) => {
-    // Send AI reply through WebSocket so seller sees it too
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       ws.current.send(JSON.stringify({
         type: "message",
@@ -111,18 +138,13 @@ export function useChat(
         }),
       });
       const data = await res.json();
-      if (data.reply) sendBotMessage(data.reply);
-      else {
-        console.error("[AI Reply Error]", data.error);
-        sendBotMessage("I'll get back to you shortly!");
-      }
-    } catch (err) {
-      console.error("[AI Fetch Error]", err);
+      sendBotMessage(data.reply ?? "I'll get back to you shortly!");
+    } catch {
       sendBotMessage("Sorry, I'm having trouble responding right now.");
     } finally {
       setAiTyping(false);
     }
-  }, [productContext, sendBotMessage]);
+  }, [productContext, aiDisabled, sendBotMessage]);
 
   const sendMessage = useCallback((content: string) => {
     if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return;
@@ -133,7 +155,6 @@ export function useChat(
       senderName: userName,
       content,
     }));
-    // Trigger AI reply only for buyers (not the seller/bot)
     triggerAIReply(content);
   }, [roomId, userId, userName, triggerAIReply]);
 

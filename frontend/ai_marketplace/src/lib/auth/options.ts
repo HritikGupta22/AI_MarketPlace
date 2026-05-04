@@ -5,6 +5,19 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+const loginFormFields = {
+  email: { label: "Email", type: "email" },
+  password: { label: "Password", type: "password" },
+} as const;
+
+async function verifyUser(email: string, password: string) {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || !user.password) return null;
+  const isValid = await bcrypt.compare(password, user.password);
+  if (!isValid || user.banned) return null;
+  return user;
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
@@ -18,25 +31,11 @@ export const authOptions: NextAuthOptions = {
       allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
-      name: "credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
-
-        if (!user || !user.password) return null;
-
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) return null;
-        if (user.banned) return null;
-
-        return user;
+      name: "Email & Password",
+      credentials: loginFormFields,
+      async authorize(input) {
+        if (!input?.email || !input?.password) return null;
+        return verifyUser(input.email, input.password);
       },
     }),
   ],

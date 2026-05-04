@@ -237,13 +237,14 @@ CANCELLED
 
 ---
 
-## Phase 13 — Deployment 🔜 Next
+## Phase 13 — Deployment ✅ Complete
 
-- Deploy Next.js frontend to **Vercel**
-- Deploy Go chat server to **Render** (free tier)
-- Set all `.env` variables in Vercel dashboard
-- Configure production `NEXTAUTH_URL`
-- Test full flow on production URL
+- Next.js frontend deployed to **Vercel**: https://ai-market-place-tau.vercel.app/
+- Go chat server deployed to **Render**: wss://ai-marketplace-sk3u.onrender.com
+- All `.env` variables configured in Vercel dashboard
+- Production `NEXTAUTH_URL` set
+- WebSocket URL updated to `wss://` for production
+- Full end-to-end flow verified on production
 
 ---
 
@@ -315,25 +316,26 @@ CANCELLED
 
 | Service | Usage | Cost |
 |---------|-------|------|
-| Vercel | Frontend hosting | $0 |
+| Vercel | Frontend hosting (https://ai-market-place-tau.vercel.app/) | $0 |
+| Render | Go WebSocket chat server | $0 |
 | Neon | PostgreSQL database | $0 |
 | Cloudinary | Image storage | $0 |
 | Groq API | AI (LLaMA models) | $0 |
 | Resend | Email delivery | $0 |
-| Go server (local) | WebSocket chat | $0 |
 
 **Total Monthly Cost: $0**
 
 ---
 
-## Deployment Notes
+## Deployment
 
-- **Frontend**: Deploy to Vercel — `npm run build` must pass
-- **Go Chat Server**: Deploy to Fly.io or Render (free tier)
-- **Database**: Neon PostgreSQL (cloud, always active)
-- **Environment variables**: Copy `.env` values to Vercel dashboard
+| Service | URL |
+|---------|-----|
+| Frontend (Vercel) | https://ai-market-place-tau.vercel.app/ |
+| Go Chat Server (Render) | wss://ai-marketplace-sk3u.onrender.com |
+| Database (Neon) | Cloud PostgreSQL — always active |
 
 ---
 
-**Last Updated**: Phase 12 Complete — Ready for deployment 🚀
+**Last Updated**: Phase 13 Complete — Live in production 🚀
 **Build**: ✅ Passing (60 routes, 0 TypeScript errors)
