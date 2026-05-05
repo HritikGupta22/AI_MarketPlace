@@ -1,5 +1,5 @@
 import { defineConfig } from "prisma/config";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaNeon } from "@prisma/adapter-neon";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -8,6 +8,6 @@ export default defineConfig({
   },
   datasource: {
     url: process.env["DATABASE_URL"]!,
-    adapter: () => new PrismaPg({ connectionString: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"]! }),
+    adapter: () => new PrismaNeon({ connectionString: process.env["DATABASE_URL"]! }),
   },
 });
