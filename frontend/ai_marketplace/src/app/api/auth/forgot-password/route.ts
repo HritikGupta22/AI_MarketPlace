@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`;
 
   await resend.emails.send({
-    from: "AI Marketplace <onboarding@resend.dev>",
+    from: "AI Marketplace <noreply@mg.resend.dev>",
     to: email,
     subject: "Reset your password",
     html: `
