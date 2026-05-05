@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Resend } from "resend";
+import { sendEmail } from "@/lib/mailer";
 import crypto from "crypto";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
   const { email } = await req.json();
@@ -14,12 +12,10 @@ export async function POST(req: Request) {
 
   const user = await prisma.user.findUnique({ where: { email } });
 
-  // Always return success to prevent email enumeration
   if (!user) {
     return NextResponse.json({ message: "If that email exists, a reset link has been sent." });
   }
 
-  // Delete any existing token for this email
   await prisma.passwordResetToken.deleteMany({ where: { email } });
 
   const token = crypto.randomBytes(32).toString("hex");
@@ -31,8 +27,7 @@ export async function POST(req: Request) {
 
   const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`;
 
-  await resend.emails.send({
-    from: "AI Marketplace <noreply@mg.resend.dev>",
+  await sendEmail({
     to: email,
     subject: "Reset your password",
     html: `
