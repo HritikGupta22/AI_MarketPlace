@@ -22,7 +22,7 @@ An AI-powered multi-vendor e-commerce marketplace built with Next.js, Go WebSock
 | Realtime | Go WebSocket Server (Gorilla WebSocket) |
 | AI | Groq API (llama-3.3-70b-versatile, llama-4-scout vision) |
 | Images | Cloudinary |
-| Email | Resend |
+| Email | Gmail SMTP (Nodemailer) |
 | Payments | UPI deep links (GPay, PhonePe, Paytm, BHIM) |
 
 ---
@@ -75,7 +75,7 @@ Next.js Backend (API Routes)
 - Next.js 16 + Tailwind CSS v4 + TypeScript
 - Prisma ORM v7 + Supabase PostgreSQL
 - NextAuth (Credentials + Google OAuth)
-- Register / Login / Forgot Password / Reset Password
+- Register / Login / Forgot Password / Reset Password (Gmail SMTP)
 - Navbar (auth-aware) + Footer
 - Role-based access (BUYER / SELLER / ADMIN)
 
@@ -99,7 +99,7 @@ Next.js Backend (API Routes)
 - Checkout with delivery form (React Hook Form + Zod)
 - UPI payment — GPay, PhonePe, Paytm, BHIM deep links
 - Orders API — create + list
-- Order confirmation email via Resend
+- Order confirmation email via Gmail SMTP
 - Orders list + detail pages
 
 ---
@@ -321,7 +321,7 @@ CANCELLED
 | Neon | PostgreSQL database | $0 |
 | Cloudinary | Image storage | $0 |
 | Groq API | AI (LLaMA models) | $0 |
-| Resend | Email delivery | $0 |
+| Gmail SMTP | Email delivery (Nodemailer) | $0 |
 
 **Total Monthly Cost: $0**
 
@@ -337,5 +337,5 @@ CANCELLED
 
 ---
 
-**Last Updated**: Phase 13 Complete — Live in production 🚀
+**Last Updated**: Production fixes complete — Live in production 🚀
 **Build**: ✅ Passing (60 routes, 0 TypeScript errors)

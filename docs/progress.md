@@ -30,7 +30,7 @@
 | Register API route (`/api/auth/register`) | ✅ Done |
 | Login page with reset success + OAuth error messages | ✅ Done |
 | Register page with Buyer/Seller role | ✅ Done |
-| Forgot Password page + API (Resend email) | ✅ Done |
+| Forgot Password page + API (Gmail SMTP email) | ✅ Done |
 | Reset Password page + API (token validation) | ✅ Done |
 | PasswordResetToken model + migration | ✅ Done |
 | Sign Out → redirects to `/auth/login` | ✅ Done |
@@ -73,7 +73,7 @@
 | UPI payment — individual app buttons (GPay, PhonePe, Paytm, BHIM) | ✅ Done |
 | Copy UPI ID fallback for manual payment | ✅ Done |
 | Orders API (`/api/orders`) — create + list | ✅ Done |
-| Order confirmation email via Resend | ✅ Done |
+| Order confirmation email via Gmail SMTP | ✅ Done |
 | Orders list page (`/orders`) | ✅ Done |
 | Order detail page (`/orders/[id]`) with success banner | ✅ Done |
 | Orders link in Navbar | ✅ Done |
@@ -302,6 +302,11 @@ CANCELLED
 
 | Issue | Fix |
 |-------|-----|
+| 500 on `/api/auth/register` in production | Switched Prisma adapter from `adapter-pg` to `adapter-neon` for Vercel serverless ✅ |
+| Prisma global instance not cached in production | Removed `NODE_ENV` guard — always cache globally ✅ |
+| `NEXTAUTH_URL` pointing to localhost in production | Updated to `https://ai-market-place-tau.vercel.app` in Vercel env vars ✅ |
+| Password reset email only delivered to Resend account owner | Removed Resend, switched to Gmail SMTP via Nodemailer ✅ |
+| `resend` import in `orders/route.ts` breaking production build | Replaced with `sendEmail` from shared `mailer.ts` ✅ |
 | GitHub auth failed | Fixed with Personal Access Token ✅ |
 | Prisma v7 — `url` not allowed in schema.prisma | Moved to `prisma.config.ts` ✅ |
 | Migration failed on pgBouncer port 6543 | Used `DIRECT_URL` (port 5432) for migrations ✅ |
@@ -338,6 +343,7 @@ CANCELLED
 - Session 12: ~1 hr — Phase 10: Order management, seller order page, buyer cancel, sellerId on Order
 - Session 13: ~1 hr — Phase 11: Neon migration, bug fixes, hydration warning fix
 - Session 14: ~1 hr — Phase 13: Vercel + Render deployment, env config, production testing
+- Session 15: ~1 hr — Production fixes: Neon adapter, Gmail SMTP, Resend removal, build errors
 
 ---
 
