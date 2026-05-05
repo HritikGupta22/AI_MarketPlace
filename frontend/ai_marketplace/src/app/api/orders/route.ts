@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { sendEmail } from "@/lib/mailer";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -40,8 +38,7 @@ export async function POST(req: Request) {
   });
 
   // Send confirmation email
-  await resend.emails.send({
-    from: "AI Marketplace <onboarding@resend.dev>",
+  await sendEmail({
     to: session.user.email!,
     subject: `Order Confirmed — #${order.id.slice(-8).toUpperCase()}`,
     html: `
